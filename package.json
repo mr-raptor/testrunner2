@@ -10,6 +10,8 @@
   "author": "ITCraft",
   "license": "",
   "dependencies": {
-    "express": "^4.13.3"
+    "ejs": "^2.3.4",
+    "express": "^4.13.3",
+    "jsonfile": "^2.2.3"
   }
 }
