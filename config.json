@@ -1,4 +1,5 @@
 {
 	"nunitPath": "D:\\Program Files (x86)\\NUnit.org\\nunit3-console.exe",
-	"testAssemblyPath": "D:\\Selenium\\AdoramaAutoTests\\AdoramaAutoTests\\bin\\Debug\\AdoramaAutoTests.dll"
+	"testAssemblyPath": "D:\\Selenium\\AdoramaAutoTests\\AdoramaAutoTests\\bin\\Debug\\AdoramaAutoTests.dll",
+	"HTMLReportApp": "ReportUnit.exe"
 }

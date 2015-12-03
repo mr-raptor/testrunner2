@@ -15,14 +15,34 @@ app.get('/', function(req, res) {
 	});
 });
 
+getPath = function(value) {
+	return "\"" + value + "\"";
+}
+
 app.get('/run', function(req, res) {
 	// delete custom separator and move assembly full name to json
 	testlist = "AdoramaAutoTests.Tests.CartItem." + Object.keys(req.query).join(",AdoramaAutoTests.Tests.CartItem.");
-	var command = "\"" + config.nunitPath + "\"" + " /test:" + testlist + " " + config.testAssemblyPath;
-	exec(command, function(err, data) {
-		console.log(err);
-		console.log(data);
-		res.redirect("/");
+	var runTests = getPath(config.nunitPath) + " /test:" + testlist + " " + getPath(config.testAssemblyPath);
+	console.log(runTests);
+	exec(runTests, function(err, data) {
+		if(err != null) {
+			console.log(err);
+		} else {
+			console.log(data);
+		}
+		var projectPath = "D:\\Selenium\\TestRunner\\";
+		var inputFile = "TestResult.xml";
+		var outputFile = "./views/result.ejs";
+		var generateReport = config.HTMLReportApp + " " + inputFile + " " + outputFile;
+		console.log(generateReport);
+		exec(generateReport, function(err, data) {
+			if(err != null) {
+				console.log(err);
+				res.redirect("/");
+			} else {
+				res.render("result"); //to test results
+			}
+		});
 	});
 });
 

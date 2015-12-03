@@ -1,30 +1,21 @@
 {
-	"fixtures" : [
-		{
-			"name": "CartViewTests",
-			"tests": [
-				{
-					"name": "RegularItem_1",
-					"active": true
-				},
-				{
-					"name": "RegularItem_3",
-					"active": false
-				}
-			]
-		},
-		{
-			"name": "CartViewTests",
-			"tests": [
-				{
-					"name": "RegularItem_4",
-					"active": false
-				},
-				{
-					"name": "RegularItem_2",
-					"active": true
-				}
-			]
-		}
-	]
+	"fixtures" : [{
+		"name": "CartViewTests",
+		"tests": [{
+			"name": "RegularItem_1",
+			"active": true
+		}, {
+			"name": "RegularItem_3",
+			"active": false
+		}]
+	}, {
+		"name": "CartViewTests",
+		"tests": [{
+			"name": "RegularItem_4",
+			"active": false
+		}, {
+			"name": "RegularItem_2",
+			"active": true
+		}]
+	}]
 }
