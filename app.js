@@ -96,7 +96,7 @@ app.get('/run', function(req, res) {
 
 		var inputFile = "TestResult.xml";
 		var outputFile = "./views/result.ejs";
-		var generateReport = config.HTMLReportApp + " " + inputFile + " " + outputFile;
+		var generateReport = getPath(config.HTMLReportApp) + " " + inputFile + " " + outputFile;
 		console.log(generateReport);
 		exec(generateReport, function(err, data) {
 			if(err != null) {
