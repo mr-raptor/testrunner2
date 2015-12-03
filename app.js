@@ -11,15 +11,52 @@ app.get('/', function(req, res) {
 	var file = 'output.json';
 
 	jsonfile.readFile(file, function(err, obj) {
+		console.log(obj.fixtures);
 		res.render('pages/index', {fixtures: obj.fixtures});		
 	});
 });
 
-getPath = function(value) {
+var getPath = function(value) {
 	return "\"" + value + "\"";
 }
 
+var parseDLL = function() {
+	var inputFile = getPath(config.testAssemblyPath);
+	var outputFile = "D:\\Selenium\\TestRunner\\parsed.json";
+	var parse = getPath(config.DLLParserApp) + " " + inputFile + " " + outputFile;
+	console.log(parse);
+	exec(parse, function(err, data) {
+		if(err != null) {
+			console.log(err);
+		} else {
+			console.log(data);
+		}
+	});
+}
 
+var syncConfig = function() {
+	var configFile = 'output.json'; //move to config
+	var update = 'parsed.json';
+	
+	jsonfile.readFile(update, function(err, obj) {
+		if(err != null) {
+			console.log(err);
+		} else {
+			obj.fixtures.forEach(function(fixture) {
+				fixture.tests.forEach(function(test) { test.active = true });		
+			});
+			jsonfile.writeFile(configFile, obj, function(err) {
+				console.error(err);
+			});
+		}
+	});
+}
+
+app.get('/parse', function(req, res) {
+	parseDLL();
+	syncConfig();
+	res.redirect('/');
+});
 
 app.get('/run', function(req, res) {
 	testlist = Object.keys(req.query).join();
@@ -31,7 +68,7 @@ app.get('/run', function(req, res) {
 		} else {
 			console.log(data);
 		}
-		var projectPath = "D:\\Selenium\\TestRunner\\";
+
 		var inputFile = "TestResult.xml";
 		var outputFile = "./views/result.ejs";
 		var generateReport = config.HTMLReportApp + " " + inputFile + " " + outputFile;
@@ -54,3 +91,5 @@ var server = app.listen(3000, function () {
 
 	console.log('Example app listening at http://%s:%s', host, port);
 });
+//"dll_parser/parser.exe" "D:\Selenium\AdoramaAutoTests\AdoramaAutoTests\bin\Debug\AdoramaAutoTests.dll" parsed.json
+//parser.exe "D:\Selenium\AdoramaAutoTests\AdoramaAutoTests\bin\Debug\AdoramaAutoTests.dll" parsed.json
