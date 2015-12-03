@@ -6,16 +6,20 @@
     <header>
         <% include ../partials/header %>
     </header>
-
+	<form action="run">
 	<% fixtures.forEach(function(fixture) { %>
 		<h2><%= fixture.name %></h2>
 		<% fixture.tests.forEach(function(test) { %>
 		<ul>
-			<li><%= test.name %></li>
+			<li>
+				<input type="checkbox" name="<%=fixture.name + "." + test.name%>" <%= test.active ? "checked" : "" %> />
+				<%= test.name %>
+			</li>
 		</ul>
 		<% }); %>
 	<% }); %>
-
+	<input type="submit" value="Run">
+	</form>
     <footer>
         <% include ../partials/footer %>
     </footer>
