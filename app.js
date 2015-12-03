@@ -16,11 +16,11 @@ app.get('/', function(req, res) {
 	});
 });
 
-var getPath = function(value) {
+function getPath(value) {
 	return "\"" + value + "\"";
 }
 
-var parseDLL = function() {
+function parseDLL() {
 	var inputFile = getPath(config.testAssemblyPath);
 	var outputFile = "D:\\Selenium\\TestRunner\\parsed.json";
 	var parse = getPath(config.DLLParserApp) + " " + inputFile + " " + outputFile;
@@ -34,7 +34,7 @@ var parseDLL = function() {
 	});
 }
 
-var syncConfig = function() {
+function syncConfig() {
 	var configFile = 'output.json'; //move to config
 	var update = 'parsed.json';
 	

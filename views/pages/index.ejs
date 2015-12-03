@@ -12,7 +12,7 @@
 		<% fixture.tests.forEach(function(test) { %>
 		<ul>
 			<li>
-				<input type="checkbox" name="<%=test.assembly + "." + test.name%>" <%= test.active ? "checked" : "" %> />
+				<input type="checkbox" name="<%=test.fullname%>" <%= test.active ? "checked" : "" %> />
 				<%= test.name %>
 			</li>
 		</ul>

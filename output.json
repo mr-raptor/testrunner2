@@ -1,1 +1,1 @@
-{"fixtures":[{"name":"CartViewTests","tests":[{"name":"RegularItem_1","assembly":"AdoramaAutoTests.Tests.CartItem.CartViewTests","active":true},{"name":"RegularItem_2","assembly":"AdoramaAutoTests.Tests.CartItem.CartViewTests","active":true}]}]}
+{"fixtures":[{"name":"CartViewTests","tests":[{"name":"RegularItem_1","fullname":"AdoramaAutoTests.Tests.CartItem.CartViewTests.RegularItem_1","active":true},{"name":"RegularItem_2","fullname":"AdoramaAutoTests.Tests.CartItem.CartViewTests.RegularItem_2","active":true}]}]}
