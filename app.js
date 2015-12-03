@@ -19,10 +19,11 @@ getPath = function(value) {
 	return "\"" + value + "\"";
 }
 
+
+
 app.get('/run', function(req, res) {
-	// delete custom separator and move assembly full name to json
-	testlist = "AdoramaAutoTests.Tests.CartItem." + Object.keys(req.query).join(",AdoramaAutoTests.Tests.CartItem.");
-	var runTests = getPath(config.nunitPath) + " /test:" + testlist + " " + getPath(config.testAssemblyPath);
+	testlist = Object.keys(req.query).join();
+	var runTests = getPath(config.nunitApp) + " /test:" + testlist + " " + getPath(config.testAssemblyPath);
 	console.log(runTests);
 	exec(runTests, function(err, data) {
 		if(err != null) {
@@ -40,7 +41,7 @@ app.get('/run', function(req, res) {
 				console.log(err);
 				res.redirect("/");
 			} else {
-				res.render("result"); //to test results
+				res.render("result");
 			}
 		});
 	});

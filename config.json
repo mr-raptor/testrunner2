@@ -1,5 +1,6 @@
 {
-	"nunitPath": "D:\\Program Files (x86)\\NUnit.org\\nunit3-console.exe",
+	"nunitApp": "D:\\Program Files (x86)\\NUnit.org\\nunit3-console.exe",
 	"testAssemblyPath": "D:\\Selenium\\AdoramaAutoTests\\AdoramaAutoTests\\bin\\Debug\\AdoramaAutoTests.dll",
-	"HTMLReportApp": "ReportUnit.exe"
+	"HTMLReportApp": "./ReportGenerator/ReportUnit.exe",
+	"DLLParserApp": "./dll_parser/parser.exe"
 }
