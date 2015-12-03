@@ -59,7 +59,32 @@ app.get('/parse', function(req, res) {
 });
 
 app.get('/run', function(req, res) {
-	testlist = Object.keys(req.query).join();
+	var checked_tests = Object.keys(req.query);
+	var testlist = checked_tests.join();
+	
+	var configFile = 'output.json'; //move to config
+	// move to .. somewhere
+	jsonfile.readFile(configFile, function(err, obj) {
+		if(err != null) {
+			console.log(err);
+		} else {
+
+			obj.fixtures.forEach(function(fixture) {
+				fixture.tests.forEach(function(test) {
+					if(checked_tests.indexOf(test.fullname) == -1) {
+						test.active = false;
+					} else {
+						test.active = true;
+					}
+				});
+			});
+
+			jsonfile.writeFile(configFile, obj, function(err) {
+				console.error(err);
+			});
+		}
+	});
+	
 	var runTests = getPath(config.nunitApp) + " /test:" + testlist + " " + getPath(config.testAssemblyPath);
 	console.log(runTests);
 	exec(runTests, function(err, data) {
