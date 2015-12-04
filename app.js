@@ -95,7 +95,7 @@ app.get('/run', function(req, res) {
 		}
 
 		var inputFile = "TestResult.xml";
-		var outputFile = "./views/result.ejs";
+		var outputFile = "result.html";
 		var generateReport = getPath(config.HTMLReportApp) + " " + inputFile + " " + outputFile;
 		console.log(generateReport);
 		exec(generateReport, function(err, data) {
@@ -103,10 +103,20 @@ app.get('/run', function(req, res) {
 				console.log(err);
 				res.redirect("/");
 			} else {
-				res.render("result");
+				exec("MOVE /Y result.html ./views/result.ejs", function(err, data) {
+					if(err != null) {
+						console.log(err);
+					} else {
+						res.redirect("lastresult");
+					}
+				});
 			}
 		});
 	});
+});
+
+app.get('/lastresult', function(req, res) {
+	res.render("result");
 });
 
 //run app
