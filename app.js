@@ -1,24 +1,24 @@
 var express = require('express');
 var jsonfile = require('jsonfile');
-var util = require('util');
 var exec = require('child_process').exec;
 var config = require('./config.json');
+var getPath = require('./util').getPath;
 
 var app = express();
 app.set('view engine', 'ejs');
 
+/*console.log = function(message) {
+	console.log("["+(new Date()).toTimeString().substr(0,8)+"]: "+message);
+}*/
+
 app.get('/', function(req, res) {
 	var file = 'output.json';
-
+	console.log(getPath(config.testAssemblyPath));
 	jsonfile.readFile(file, function(err, obj) {
 		console.log(obj.fixtures);
 		res.render('pages/index', {fixtures: obj.fixtures});		
 	});
 });
-
-function getPath(value) {
-	return "\"" + value + "\"";
-}
 
 function parseDLL() {
 	var inputFile = getPath(config.testAssemblyPath);
