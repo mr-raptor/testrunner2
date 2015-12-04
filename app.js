@@ -22,7 +22,7 @@ function getPath(value) {
 
 function parseDLL() {
 	var inputFile = getPath(config.testAssemblyPath);
-	var outputFile = "D:\\Selenium\\TestRunner\\parsed.json";
+	var outputFile = "parsed.json";
 	var parse = getPath(config.DLLParserApp) + " " + inputFile + " " + outputFile;
 	console.log(parse);
 	exec(parse, function(err, data) {
@@ -126,5 +126,3 @@ var server = app.listen(3000, function () {
 
 	console.log('Example app listening at http://%s:%s', host, port);
 });
-//"dll_parser/parser.exe" "D:\Selenium\AdoramaAutoTests\AdoramaAutoTests\bin\Debug\AdoramaAutoTests.dll" parsed.json
-//parser.exe "D:\Selenium\AdoramaAutoTests\AdoramaAutoTests\bin\Debug\AdoramaAutoTests.dll" parsed.json
