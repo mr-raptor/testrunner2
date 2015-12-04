@@ -120,7 +120,7 @@ app.get('/lastresult', function(req, res) {
 });
 
 //run app
-var server = app.listen(3000, function () {
+var server = app.listen(config.PORT, function () {
 	var host = server.address().address;
 	var port = server.address().port;
 
