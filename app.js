@@ -1,15 +1,18 @@
 var express = require('express');
 var jsonfile = require('jsonfile');
-var exec = require('child_process').exec;
+
+// My
 var config = require('./config.json');
 var getPath = require('./util').getPath;
+var Executor = require('./Executor');
 
 var app = express();
 app.set('view engine', 'ejs');
 
-/*console.log = function(message) {
-	console.log("["+(new Date()).toTimeString().substr(0,8)+"]: "+message);
-}*/
+var oldLog = console.log;
+console.log = function(message) {
+	oldLog("["+(new Date()).toTimeString().substr(0,8)+"]: "+message);
+}
 
 app.get('/', function(req, res) {
 	var file = 'output.json';
@@ -21,15 +24,11 @@ app.get('/', function(req, res) {
 });
 
 function parseDLL() {
-	var inputFile = getPath(config.testAssemblyPath);
-	var outputFile = "parsed.json";
-	var parse = getPath(config.DLLParserApp) + " " + inputFile + " " + outputFile;
-	console.log(parse);
-	exec(parse, function(err, data) {
-		if(err != null) {
-			console.log(err);
-		} else {
-			console.log(data);
+	new Executor({
+		program: getPath(config.DLLParserApp),
+		args: {
+			inputFile: getPath(config.testAssemblyPath),
+			outputFile: "parsed.json"
 		}
 	});
 }
@@ -58,6 +57,50 @@ app.get('/parse', function(req, res) {
 	res.redirect('/');
 });
 
+function moveReportToView(res) {
+	new Executor({
+		program: "MOVE",
+		args: {
+			param: "/Y",
+			fileLocation: "result.html",
+			moveTo: "./views/result.ejs"
+		},
+		successAction: function() {
+			res.redirect("lastresult");
+		}
+	});
+}
+
+function generateReport(res) {
+	new Executor({
+		program: getPath(config.HTMLReportApp),
+		args: {
+			inputFile: "TestResult.xml",
+			outputFile: "result.html"
+		},
+		successAction: function() {
+			moveReportToView(res);
+		},
+		errorAction: function(err) {
+			console.log(err);
+			res.redirect('/');
+		}
+	});
+}
+
+function runTests(testlist, res) {
+	new Executor({
+		program: getPath(config.nunitApp),
+		args: {
+			tests: "/test:" + testlist,
+			assembly: getPath(config.testAssemblyPath)
+		},
+		anywayAction: function() {
+			generateReport(res);
+		}
+	});
+}
+
 app.get('/run', function(req, res) {
 	var checked_tests = Object.keys(req.query);
 	var testlist = checked_tests.join();
@@ -85,34 +128,7 @@ app.get('/run', function(req, res) {
 		}
 	});
 	
-	var runTests = getPath(config.nunitApp) + " /test:" + testlist + " " + getPath(config.testAssemblyPath);
-	console.log(runTests);
-	exec(runTests, function(err, data) {
-		if(err != null) {
-			console.log(err);
-		} else {
-			console.log(data);
-		}
-
-		var inputFile = "TestResult.xml";
-		var outputFile = "result.html";
-		var generateReport = getPath(config.HTMLReportApp) + " " + inputFile + " " + outputFile;
-		console.log(generateReport);
-		exec(generateReport, function(err, data) {
-			if(err != null) {
-				console.log(err);
-				res.redirect("/");
-			} else {
-				exec("MOVE /Y result.html ./views/result.ejs", function(err, data) {
-					if(err != null) {
-						console.log(err);
-					} else {
-						res.redirect("lastresult");
-					}
-				});
-			}
-		});
-	});
+	runTests(testlist, res);
 });
 
 app.get('/lastresult', function(req, res) {
@@ -124,5 +140,5 @@ var server = app.listen(config.PORT, function () {
 	var host = server.address().address;
 	var port = server.address().port;
 
-	console.log('Example app listening at http://%s:%s', host, port);
+	console.log('Example app listening at http://'+host+':'+port);
 });
