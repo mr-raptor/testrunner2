@@ -13,7 +13,7 @@ function Executor(options) {
 	self.anywayAction = 
 		(typeof options.anywayAction === 'function') ? options.anywayAction : function() {};
 
-	self.execute = function() {		
+	self.execute = function() {
 		var argsString = "";
 		for(var o in self.args) {
 			argsString += self.args[o] + ' ';

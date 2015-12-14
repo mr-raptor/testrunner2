@@ -15,11 +15,12 @@ console.log = function(message) {
 }
 
 app.get('/', function(req, res) {
-	var file = 'output.json';
-	console.log(getPath(config.testAssemblyPath));
-	jsonfile.readFile(file, function(err, obj) {
-		console.log(obj.fixtures);
-		res.render('pages/index', {fixtures: obj.fixtures});		
+	//res.redirect('/parse');
+	jsonfile.readFile(config.testInfoFile, function(err, obj) {
+		res.render('pages/index', {
+			fixtures: obj.fixtures,
+			browsers: config.browsers
+		});
 	});
 });
 
@@ -28,23 +29,23 @@ function parseDLL() {
 		program: getPath(config.DLLParserApp),
 		args: {
 			inputFile: getPath(config.testAssemblyPath),
-			outputFile: "parsed.json"
+			outputFile: config.parsedDLLFile
 		}
 	});
 }
 
 function syncConfig() {
-	var configFile = 'output.json'; //move to config
-	var update = 'parsed.json';
-	
-	jsonfile.readFile(update, function(err, obj) {
+	jsonfile.readFile(config.parsedDLLFile, function(err, obj) {
 		if(err != null) {
 			console.log(err);
 		} else {
-			obj.fixtures.forEach(function(fixture) {
-				fixture.tests.forEach(function(test) { test.active = true });		
+			obj.fixtures.forEach(fixture => {
+				fixture.tests.forEach(test => { 
+					test.active = true;
+					test.browsers = ["chrome"]; // need to fix it
+				});		
 			});
-			jsonfile.writeFile(configFile, obj, function(err) {
+			jsonfile.writeFile(config.testInfoFile, obj, function(err) {
 				console.error(err);
 			});
 		}
@@ -104,14 +105,12 @@ function runTests(testlist, res) {
 app.get('/run', function(req, res) {
 	var checked_tests = Object.keys(req.query);
 	var testlist = checked_tests.join();
-	
-	var configFile = 'output.json'; //move to config
+
 	// move to .. somewhere
-	jsonfile.readFile(configFile, function(err, obj) {
+	jsonfile.readFile(config.testInfoFile, function(err, obj) {
 		if(err != null) {
 			console.log(err);
 		} else {
-
 			obj.fixtures.forEach(function(fixture) {
 				fixture.tests.forEach(function(test) {
 					if(checked_tests.indexOf(test.fullname) == -1) {
@@ -122,7 +121,7 @@ app.get('/run', function(req, res) {
 				});
 			});
 
-			jsonfile.writeFile(configFile, obj, function(err) {
+			jsonfile.writeFile(config.testInfoFile, obj, function(err) {
 				console.error(err);
 			});
 		}

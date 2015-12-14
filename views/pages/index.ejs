@@ -5,18 +5,34 @@
 <body>
     <header>
         <% include ../partials/header %>
+		<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script>
+			$(document).ready(function() {
+				$('li:has(> input.test)').change(function() {
+					//console.log($('input.test', this).checked);
+					$('.browser', this).prop('disabled', function(i, v) { return !v; });//.attr("disabled", true);
+				});
+			});
+		</script>
     </header>
 	<form action="run">
-	<% fixtures.forEach(function(fixture) { %>
-		<h2><%= fixture.name %></h2>
-		<% fixture.tests.forEach(function(test) { %>
+	<% fixtures.forEach(fixture => { %>
+	<div>
+		<h4><%= fixture.name %></h4>
+		<div>
+		<% fixture.tests.forEach(test => { %>
 		<ul>
 			<li>
-				<input type="checkbox" name="<%=test.fullname%>" <%= test.active ? "checked" : "" %> />
+				<input class="test" type="checkbox" name="<%=test.fullname%>" <%= test.active ? "checked" : "" %> />
 				<%= test.name %>
+				<% browsers.forEach(browser => { %>
+					<input class="browser" type="checkbox"/>
+				<% }); %>
 			</li>
 		</ul>
 		<% }); %>
+		</div>
+	</div>
 	<% }); %>
 	<input type="submit" value="Run">
 	</form>
