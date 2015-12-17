@@ -2,6 +2,41 @@
 <head>
     <% include ../partials/head %>
 	<style>
+		#content {
+			width: 1000px;
+			margin: 0 auto;
+		}
+		
+		.button-0 {
+			position: relative;
+			padding: 10px 40px;
+			margin: 50px 30% 10px 0px;
+			float: right;
+			border-radius: 10px;
+			font-family: 'Helvetica', cursive;
+			font-size: 25px;
+			color: #FFF;
+			text-decoration: none;  
+			background-color: #3498DB;
+			border-bottom: 5px solid #2980B9;
+			text-shadow: 0px -2px #2980B9;
+			/* Animation */
+			transition: all 0.1s;
+			-webkit-transition: all 0.1s;
+		}
+
+		.button-0:hover, 
+		.button-0:focus {
+			text-decoration: none;
+			color: #fff;
+		}
+
+		.button-0:active {
+			transform: translate(0px,5px);
+			-webkit-transform: translate(0px,5px);
+			border-bottom: 1px solid;
+		}
+	
 		li {
 			margin: 10px;
 		}
@@ -58,12 +93,14 @@
 <body>
     <header>
         <% include ../partials/header %>
+		<h1><i>Test Runner</i></h1>
+    </header>
+	<div id=content>
 		<div class="browsers">
 		<% browsers.forEach(browser => { %>
 			<span class="browser"><%=browser%></span>
 		<% }); %>
-		</div>
-    </header>
+		</div>	
 	<% fixtures.forEach(fixture => { %>
 	<div class="fixture">
 		<h4>
@@ -88,9 +125,9 @@
 		</div>
 	</div>
 	<% }); %>
-	<!--input type="button" id="run_tests" value="Run!" /-->
+	</div>
     <footer>
-		<div><button id="run_tests">Run!</button></div>
+		<div><a id="run_tests" href="#" class="button-0">Run!</a></div>
 		<span id="message"></span>		
         <% include ../partials/footer %>
     </footer>
