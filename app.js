@@ -15,7 +15,6 @@ console.log = function(message) {
 }
 
 app.get('/', function(req, res) {
-	//res.redirect('/parse');
 	jsonfile.readFile(config.testInfoFile, function(err, obj) {
 		res.render('pages/index', {
 			fixtures: obj.fixtures,
@@ -102,7 +101,7 @@ function runTests(testlist, res) {
 	});
 }
 
-app.get('/run', function(req, res) {
+app.get('/runtests', function(req, res) {
 	var checked_tests = Object.keys(req.query);
 	var testlist = checked_tests.join();
 
@@ -111,8 +110,8 @@ app.get('/run', function(req, res) {
 		if(err != null) {
 			console.log(err);
 		} else {
-			obj.fixtures.forEach(function(fixture) {
-				fixture.tests.forEach(function(test) {
+			obj.fixtures.forEach(fixture => {
+				fixture.tests.forEach(test => {
 					if(checked_tests.indexOf(test.fullname) == -1) {
 						test.active = false;
 					} else {
@@ -128,6 +127,13 @@ app.get('/run', function(req, res) {
 	});
 	
 	runTests(testlist, res);
+});
+
+app.get('/run', function(req, res) {
+	var testlist = req.query.testList.join();
+	
+	runTests(testlist, res);
+	res.send("Ok!");
 });
 
 app.get('/lastresult', function(req, res) {
