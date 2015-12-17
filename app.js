@@ -66,7 +66,7 @@ function moveReportToView(res) {
 			moveTo: "./views/result.ejs"
 		},
 		successAction: function() {
-			res.redirect("lastresult");
+			res.send("<a href='/lastresult'>Test Results</a>");
 		}
 	});
 }
@@ -83,7 +83,7 @@ function generateReport(res) {
 		},
 		errorAction: function(err) {
 			console.log(err);
-			res.redirect('/');
+			res.send(err);
 		}
 	});
 }
@@ -133,7 +133,6 @@ app.get('/run', function(req, res) {
 	var testlist = req.query.testList.join();
 	
 	runTests(testlist, res);
-	res.send("Ok!");
 });
 
 app.get('/lastresult', function(req, res) {
