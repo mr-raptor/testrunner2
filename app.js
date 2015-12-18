@@ -1,13 +1,17 @@
-var express = require('express');
-var jsonfile = require('jsonfile');
+var express		= require('express');
+var bodyParser	= require('body-parser');
 
 // My
-var config = require('./config.json');
-var getPath = require('./util').getPath;
-var Executor = require('./Executor');
+var config		= require('./config.json');
+var getPath		= require('./util').getPath;
+var Executor 	= require('./Executor');
+var testInfo 	= require('./testInfo');
 
 var app = express();
 app.set('view engine', 'ejs');
+app.use(express.static('public'));
+app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.json());
 
 var oldLog = console.log;
 console.log = function(message) {
@@ -15,7 +19,7 @@ console.log = function(message) {
 }
 
 app.get('/', function(req, res) {
-	jsonfile.readFile(config.testInfoFile, function(err, obj) {
+	testInfo.readFile(function(obj) {
 		res.render('pages/index', {
 			fixtures: obj.fixtures,
 			browsers: config.browsers
@@ -33,27 +37,9 @@ function parseDLL() {
 	});
 }
 
-function syncConfig() {
-	jsonfile.readFile(config.parsedDLLFile, function(err, obj) {
-		if(err != null) {
-			console.log(err);
-		} else {
-			obj.fixtures.forEach(fixture => {
-				fixture.tests.forEach(test => { 
-					test.active = true;
-					test.browsers = ["chrome"]; // need to fix it
-				});		
-			});
-			jsonfile.writeFile(config.testInfoFile, obj, function(err) {
-				console.error(err);
-			});
-		}
-	});
-}
-
 app.get('/parse', function(req, res) {
 	parseDLL();
-	syncConfig();
+	testInfo.sync();
 	res.redirect('/');
 });
 
@@ -61,7 +47,7 @@ function moveReportToView(res) {
 	new Executor({
 		program: "MOVE",
 		args: {
-			param: "/Y",
+			rewrite: "/Y",
 			fileLocation: "result.html",
 			moveTo: "./views/result.ejs"
 		},
@@ -101,38 +87,26 @@ function runTests(testlist, res) {
 	});
 }
 
-app.get('/runtests', function(req, res) {
-	var checked_tests = Object.keys(req.query);
-	var testlist = checked_tests.join();
-
-	// move to .. somewhere
-	jsonfile.readFile(config.testInfoFile, function(err, obj) {
-		if(err != null) {
-			console.log(err);
-		} else {
-			obj.fixtures.forEach(fixture => {
-				fixture.tests.forEach(test => {
-					if(checked_tests.indexOf(test.fullname) == -1) {
-						test.active = false;
-					} else {
-						test.active = true;
-					}
-				});
+function buildTestList(obj) {
+	var testList = [];
+	obj.fixtures.forEach(fixture => {
+		fixture.tests.filter(test => {
+			return test.active === true;
+		}).forEach(test => {
+			test.browsers.forEach(browser => {
+				testList.push(test.assembly + "(\\\"" + browser + "\\\")." + test.name);
 			});
-
-			jsonfile.writeFile(config.testInfoFile, obj, function(err) {
-				console.error(err);
-			});
-		}
+		});
 	});
-	
-	runTests(testlist, res);
-});
+	return testList.join();
+}
 
-app.get('/run', function(req, res) {
-	var testlist = req.query.testList.join();
-	
-	runTests(testlist, res);
+app.post('/run', function(req, res) {
+	testInfo.update(req.body);
+	testInfo.readFile(function (obj) {
+		var testList = buildTestList(obj);
+		runTests(testList, res);
+	});	
 });
 
 app.get('/lastresult', function(req, res) {

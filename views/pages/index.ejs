@@ -1,85 +1,48 @@
 <html>
 <head>
     <% include ../partials/head %>
-	<style>
-		#content {
-			width: 1000px;
-			margin: 0 auto;
+	<script>
+		function getFixture($fixture) {
+			var fixture = {};
+			fixture.name = $fixture.attr("name");
+			fixture.tests = [];
+			$.each($fixture.find("div.test"), function(i,v) {
+				fixture.tests.push(getTest($(v)));
+			});
+			return fixture;
 		}
 		
-		.button-0 {
-			position: relative;
-			padding: 10px 40px;
-			margin: 50px 30% 10px 0px;
-			float: right;
-			border-radius: 10px;
-			font-family: 'Helvetica', cursive;
-			font-size: 25px;
-			color: #FFF;
-			text-decoration: none;  
-			background-color: #3498DB;
-			border-bottom: 5px solid #2980B9;
-			text-shadow: 0px -2px #2980B9;
-			/* Animation */
-			transition: all 0.1s;
-			-webkit-transition: all 0.1s;
-		}
-
-		.button-0:hover, 
-		.button-0:focus {
-			text-decoration: none;
-			color: #fff;
-		}
-
-		.button-0:active {
-			transform: translate(0px,5px);
-			-webkit-transform: translate(0px,5px);
-			border-bottom: 1px solid;
+		function getTest($test) {
+			var test = {};
+			test.name = $test.attr("name");
+			test.assembly = $test.attr("assembly");
+			test.active = $test.find("input.test").prop("checked");
+			test.browsers = [];
+			$.each($test.find("input.browser:checked"), function(i,v) {
+				test.browsers.push($(v).attr("browser"));
+			});
+			return test;
 		}
 	
-		li {
-			margin: 10px;
-		}
-		li:hover {
-			background-color: rgba(100,100,100,0.05);
-		}
-
-		div.fixture:hover {
-			background-color: rgba(100,100,100,0.05);
-		}
-		div.browsers {
-			float: right;
-			margin-right: 100;
-		}
-		.browser {
-			margin-left: 100;
-			margin-right: 100;
-		}
-	</style>
-	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
-	<script>
 		$(document).ready(function() {
-			/*$('li:has(> input.test)').change(function() {
-				//console.log($('input.test', this).checked);
-				$('.browser', this).prop('disabled', function(i, v) { return !v; });//.attr("disabled", true);
-			});*/
 			$('#run_tests').click(function() {
-				var $testList = $('li:has(> input.test:checked) input.browser:checked');
-				var testList = [];
-				$.each($testList, function(i,v) {
-					var assembly = $(v).attr("assembly");
-					var browser = $(v).attr("browser");
-					var testName = $(v).attr("name");
-					testList.push(assembly + "(\\\"" + browser + "\\\")." + testName);
+				var data = {};
+				data.fixtures = [];
+				var $fixtures = $('.fixture');
+				$.each($fixtures, function(i,v) {
+					data.fixtures.push(getFixture($(v)));
 				});
+				
 				$.ajax({
-					method: "GET",
+					method: "POST",
 					url: "/run",
-					data: {"testList" : testList }
+					contentType: "application/json",
+					data: JSON.stringify(data)
 				}).done(function(msg) {
 					$('#message').html(msg);
 				});
 			});
+			
 			$('.all_tests').change(function() {
 				var $fixture = $(this).closest('.fixture');
 				var checked = this.checked;
@@ -87,44 +50,60 @@
 					$(v).prop('checked', checked);
 				});
 			});
+			
+			$.each($('.all_tests'), function(i,v) {
+				var tests = $(this).closest('.fixture').find('input.test');
+				var all_tests_checked = true;
+				for(i=0; i<tests.length; i++) {			
+					all_tests_checked = all_tests_checked && $(tests[i]).prop('checked');
+				}
+				$(v).prop('checked', all_tests_checked);
+			});
 		});
-	</script>	
+	</script>
 </head>
 <body>
     <header>
         <% include ../partials/header %>
 		<h1><i>Test Runner</i></h1>
     </header>
-	<div id=content>
+	<div id="content">
 		<div class="browsers">
 		<% browsers.forEach(browser => { %>
 			<span class="browser"><%=browser%></span>
 		<% }); %>
-		</div>	
-	<% fixtures.forEach(fixture => { %>
-	<div class="fixture">
-		<h4>
-			<input class="all_tests" type="checkbox" />
-			<%= fixture.name %>
-		</h4>
-		<div>
-		<ul>		
-		<% fixture.tests.forEach(test => { %>
-
-			<li>
-				<input class="test" type="checkbox" name="<%=test.assembly%>" <%= test.active ? "checked" : "" %> />
-				<%= test.name %>
+		</div>
+		<% fixtures.forEach(fixture => { %>
+		<div class="fixture" name="<%=fixture.name%>" >
+			<h4>
+				<input class="all_tests" type="checkbox" />
+				<%= fixture.name %>
 				<div class="browsers">
 				<% browsers.forEach(browser => { %>
-					<input class="browser" type="checkbox" browser="<%=browser%>" assembly="<%=test.assembly%>" name="<%=test.name%>" <%= (test.browsers.indexOf(browser) !== -1) ? "checked" : "" %> />
+					<input class="browser" type="checkbox" />
 				<% }); %>
-				</div>
-			</li>
-		<% }); %>
-		</ul>		
+				</div>				
+			</h4>
+
+			<div>	
+				<ul>		
+				<% fixture.tests.forEach(test => { %>
+					<li>
+						<div class="test" name="<%= test.name %>" assembly="<%=test.assembly%>"> <!-- need to refactor this -->
+						<input class="test" type="checkbox" <%= test.active ? "checked" : "" %> />
+						<%= test.name %>
+						<div class="browsers">
+						<% browsers.forEach(browser => { %>
+							<input class="browser" type="checkbox" browser="<%=browser%>" <%= (test.browsers.indexOf(browser) !== -1) ? "checked" : "" %> />
+						<% }); %>
+						</div>
+						</div>
+					</li>
+				<% }); %>
+				</ul>
+			</div>
 		</div>
-	</div>
-	<% }); %>
+		<% }); %>
 	</div>
     <footer>
 		<div><a id="run_tests" href="#" class="button-0">Run!</a></div>
