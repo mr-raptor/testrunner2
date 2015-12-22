@@ -23,21 +23,35 @@
 			});
 			return test;
 		}
+		
+		function getTestData() {
+			var data = {};
+			data.fixtures = [];
+			var $fixtures = $('.fixture');
+			$.each($fixtures, function(i,v) {
+				data.fixtures.push(getFixture($(v)));
+			});
+			return data;
+		}
 	
 		$(document).ready(function() {
 			$('#run_tests').click(function() {
-				var data = {};
-				data.fixtures = [];
-				var $fixtures = $('.fixture');
-				$.each($fixtures, function(i,v) {
-					data.fixtures.push(getFixture($(v)));
-				});
-				
 				$.ajax({
 					method: "POST",
 					url: "/run",
 					contentType: "application/json",
-					data: JSON.stringify(data)
+					data: JSON.stringify(getTestData())
+				}).done(function(msg) {
+					$('#message').html(msg);
+				});
+			});
+			
+			$('#save_tests').click(function() {
+				$.ajax({
+					method: "POST",
+					url: "/save",
+					contentType: "application/json",
+					data: JSON.stringify(getTestData())
 				}).done(function(msg) {
 					$('#message').html(msg);
 				});
@@ -78,11 +92,11 @@
 			<h4>
 				<input class="all_tests" type="checkbox" />
 				<%= fixture.name %>
-				<div class="browsers">
+				<!--div class="browsers">
 				<% browsers.forEach(browser => { %>
 					<input class="browser" type="checkbox" />
 				<% }); %>
-				</div>				
+				</div-->				
 			</h4>
 
 			<div>	
@@ -106,7 +120,8 @@
 		<% }); %>
 	</div>
     <footer>
-		<div><a id="run_tests" href="#" class="button-0">Run!</a></div>
+		<a id="run_tests" href="#" class="button-0">Run!</a>	
+		<a id="save_tests" href="#" class="button-0">Save</a>
 		<span id="message"></span>		
         <% include ../partials/footer %>
     </footer>

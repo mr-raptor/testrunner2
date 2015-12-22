@@ -27,6 +27,12 @@ app.get('/', function(req, res) {
 	});
 });
 
+app.get('/parse', function(req, res) {
+	parseDLL();
+	testInfo.sync();
+	res.redirect('/');
+});
+
 function parseDLL() {
 	new Executor({
 		program: getPath(config.DLLParserApp),
@@ -37,22 +43,37 @@ function parseDLL() {
 	});
 }
 
-app.get('/parse', function(req, res) {
-	parseDLL();
-	testInfo.sync();
-	res.redirect('/');
+app.post('/run', function(req, res) {
+	testInfo.update(req.body);
+	testInfo.readFile(function (obj) {
+		var testList = buildTestList(obj);
+		runTests(testList, res);
+	});	
 });
 
-function moveReportToView(res) {
+function buildTestList(obj) {
+	var testList = [];
+	obj.fixtures.forEach(fixture => {
+		fixture.tests.filter(test => {
+			return test.active === true;
+		}).forEach(test => {
+			test.browsers.forEach(browser => {
+				testList.push(test.assembly + "(\\\"" + browser + "\\\")." + test.name);
+			});
+		});
+	});
+	return testList.join();
+}
+
+function runTests(testlist, res) {
 	new Executor({
-		program: "MOVE",
+		program: getPath(config.nunitApp),
 		args: {
-			rewrite: "/Y",
-			fileLocation: "result.html",
-			moveTo: "./views/result.ejs"
+			tests: "/test:" + testlist,
+			assembly: getPath(config.testAssemblyPath)
 		},
-		successAction: function() {
-			res.send("<a href='/lastresult'>Test Results</a>");
+		anywayAction: function() {
+			generateReport(res);
 		}
 	});
 }
@@ -74,39 +95,23 @@ function generateReport(res) {
 	});
 }
 
-function runTests(testlist, res) {
+function moveReportToView(res) {
 	new Executor({
-		program: getPath(config.nunitApp),
+		program: "MOVE",
 		args: {
-			tests: "/test:" + testlist,
-			assembly: getPath(config.testAssemblyPath)
+			rewrite: "/Y",
+			fileLocation: "result.html",
+			moveTo: "./views/result.ejs"
 		},
-		anywayAction: function() {
-			generateReport(res);
+		successAction: function() {
+			res.send("<a href='/lastresult'>Test Results</a>");
 		}
 	});
 }
 
-function buildTestList(obj) {
-	var testList = [];
-	obj.fixtures.forEach(fixture => {
-		fixture.tests.filter(test => {
-			return test.active === true;
-		}).forEach(test => {
-			test.browsers.forEach(browser => {
-				testList.push(test.assembly + "(\\\"" + browser + "\\\")." + test.name);
-			});
-		});
-	});
-	return testList.join();
-}
-
-app.post('/run', function(req, res) {
+app.post('/save', function(req, res) {
 	testInfo.update(req.body);
-	testInfo.readFile(function (obj) {
-		var testList = buildTestList(obj);
-		runTests(testList, res);
-	});	
+	res.end('Saved');
 });
 
 app.get('/lastresult', function(req, res) {
