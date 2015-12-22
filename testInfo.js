@@ -4,10 +4,16 @@ var config		= require('./config.json');
 var Executor 	= require('./Executor');
 
 
-function contains(test, tests) {
-	return tests.find(currentTest => {
+function searchTest(test, source) {
+	return source.find(currentTest => {
 		return currentTest.name === test.name &&
 			   currentTest.assembly === test.assembly;
+	});
+}
+
+function searchFixture(fixtureName, source) {
+	return source.find(fixture => {
+		return fixtureName === fixture.name;
 	});
 }
 
@@ -30,57 +36,32 @@ var testInfo = {
 					if(err != null) {
 						console.log(err);
 					} else {						
-						var newFixtureNames = dll.fixtures.map(fixture => {
-							return fixture.name;
+						// Delete all fixtures in testInfo what there isn't in parsedDLL						
+						testInfo.fixtures = testInfo.fixtures.filter(fixture => {
+							return searchFixture(fixture.name, dll.fixtures);
 						});
-						
-						// Delete all fixtures in testInfo what there isn't in parsedDLL
-						testInfo.fixtures.forEach(fixture => {
-							if(newFixtureNames.indexOf(fixture.name) === -1) {
-								delete fixture;
-								return;
-							}
-							
-							var newFixture = dll.fixtures.find(n_fixture => {
-								return n_fixture.name === fixture.name;
-							});
 
-							//Delete all tests in fixture in testInfo what there isn't in fixture in parsedDLL
-							fixture.tests.filter(test => { 
-								return !contains(test, newFixture.tests) 
-							}).forEach(test => {
-								delete test; 
-							});
-							fixture.tests.forEach(test => {
-								if(!contains(test, newFixture.tests)) {
-									delete test;
-								}
-								var t = newFixture.tests.find(newTest => {
-									return newTest.name === test.name &&
-										   newTest.assembly === test.assembly;
-								});
-								if(t === undefined) {
-									delete test;
-								}
+						// Delete all tests in fixture in testInfo what there isn't in fixture in parsedDLL
+						testInfo.fixtures.forEach(fixture => {
+							var newFixture = searchFixture(fixture.name, dll.fixtures);							
+							fixture.tests = fixture.tests.filter(test => { 
+								return searchTest(test, newFixture.tests);
 							});
 						});
 
 						// Add all new fixtures and tests from parsedDLL
 						dll.fixtures.forEach(fixture => {
-							var oldFixture = testInfo.fixtures.find(o_fixture => {
-								return o_fixture.name === fixture.name;
-							});
+							var oldFixture = searchFixture(fixture.name, testInfo.fixtures);
+
 							// If fixture is new, add whole fixture with tests							
 							if(oldFixture === undefined) {
 								testInfo.fixtures.push(fixture);
 							} else {
-								// If fixture exists, but test is new - add new test
-								fixture.tests.forEach(test => {
-									var t = contains(test, oldFixture.tests);
-									if(t === undefined) {
-										oldFixture.tests.push(test);
-									}
-								});
+								// If fixture exists, add new tests
+								var newTests = fixture.tests.filter(test => {
+									return !searchTest(test, oldFixture.tests);
+								});								
+								oldFixture.tests = oldFixture.tests.concat(newTests);
 							}
 							
 							fixture.tests.forEach(test => { 
@@ -92,7 +73,7 @@ var testInfo = {
 						// Save result
 						jsonfile.writeFile(config.testInfoFile, testInfo, function(err) {
 							console.error(err);
-						});						
+						});
 					}					
 				});
 			}
