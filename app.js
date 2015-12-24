@@ -43,12 +43,16 @@ function parseDLL() {
 	});
 }
 
-app.post('/run', function(req, res) {
-	testInfo.update(req.body);
-	testInfo.readFile(function (obj) {
+app.get('/runconfig', function(req, res) {
+	testInfo.readFile(function(obj) {
 		var testList = buildTestList(obj);
 		runTests(testList, res);
-	});	
+	});
+});
+
+app.post('/run', function(req, res) {
+	testInfo.update(req.body);
+	res.redirect('/runconfig');
 });
 
 function buildTestList(obj) {

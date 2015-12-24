@@ -9,7 +9,7 @@ function Executor(options) {
 	self.successAction = 
 		(typeof options.successAction === 'function') ? options.successAction : function(data) { console.log(data); };
 	self.errorAction = 
-		(typeof options.errorAction === 'function') ? options.errorAction : function(err) { console.log("ERROR! ".red + err); };
+		(typeof options.errorAction === 'function') ? options.errorAction : function(err) {};
 	self.anywayAction = 
 		(typeof options.anywayAction === 'function') ? options.anywayAction : function() {};
 
@@ -22,6 +22,7 @@ function Executor(options) {
 		console.log("Execution => " + command);
 		exec(command, function(err, data) {
 			if(err != null) {
+				console.log("ERROR! ".red + err);
 				self.errorAction(err);
 			} else {
 				self.successAction(data);
