@@ -18,10 +18,12 @@ function searchFixture(fixtureName, source) {
 }
 
 var testInfo = {
+	currentTestInfo: "",
 	readFile: function(callback) {
-		jsonfile.readFile(config.testInfoFile, function(err, obj) {
+		jsonfile.readFile(currentTestInfo, function(err, obj) {
 			if(err != null) {
 				console.log(err);
+				
 			} else {
 				callback(obj);
 			}
@@ -32,7 +34,7 @@ var testInfo = {
 			if(err != null) {
 				console.log(err);
 			} else {
-				jsonfile.readFile(config.testInfoFile, function(err, testInfo) {
+				jsonfile.readFile(currentTestInfo, function(err, testInfo) {
 					if(err != null) {
 						console.log(err);
 					} else {						
@@ -71,7 +73,7 @@ var testInfo = {
 						});
 
 						// Save result
-						jsonfile.writeFile(config.testInfoFile, testInfo, function(err) {
+						jsonfile.writeFile(currentTestInfo, testInfo, function(err) {
 							console.error(err);
 						});
 					}					
@@ -80,7 +82,7 @@ var testInfo = {
 		});
 	},
 	update: function(obj) {
-		jsonfile.writeFile(config.testInfoFile, obj, function(err) {
+		jsonfile.writeFile(currentTestInfo, obj, function(err) {
 			console.error(err);
 		});
 	}

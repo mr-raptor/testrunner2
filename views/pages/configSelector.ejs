@@ -1,0 +1,22 @@
+<html>
+<head>
+    <% include ../partials/head %>
+	<script></script>
+</head>
+<body>
+    <header>
+        <% include ../partials/header %>
+    </header>
+	<div id="content">
+		<h2>Select config:</h2>
+		<ul>
+			<% configs.forEach(configName => { %>
+				<li><a href="/config?name=<%=configName%>"><%=configName%></a></li>
+			<% }); %>
+		</ul>
+	</div>
+    <footer>	
+        <% include ../partials/footer %>
+    </footer>
+</body>
+</html>

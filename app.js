@@ -19,6 +19,14 @@ console.log = function(message) {
 }
 
 app.get('/', function(req, res) {
+	var configs = ['olol.txt', 'virus.exe', config.testInfoFile];
+	res.render('pages/configSelector', {
+		configs: configs
+	});
+});
+
+app.get('/config', function(req, res) {
+	testInfo.currentTestInfo = req.query['name'];
 	testInfo.readFile(function(obj) {
 		res.render('pages/index', {
 			fixtures: obj.fixtures,
@@ -27,21 +35,20 @@ app.get('/', function(req, res) {
 	});
 });
 
+/*app.get('/', function(req, res) {
+	testInfo.readFile(function(obj) {
+		res.render('pages/index', {
+			fixtures: obj.fixtures,
+			browsers: config.browsers
+		});
+	});
+});*/
+
 app.get('/parse', function(req, res) {
 	parseDLL();
 	testInfo.sync();
 	res.redirect('/');
 });
-
-function parseDLL() {
-	new Executor({
-		program: getPath(config.DLLParserApp),
-		args: {
-			inputFile: getPath(config.testAssemblyPath),
-			outputFile: config.parsedDLLFile
-		}
-	});
-}
 
 app.get('/runconfig', function(req, res) {
 	testInfo.readFile(function(obj) {
@@ -54,6 +61,25 @@ app.post('/run', function(req, res) {
 	testInfo.update(req.body);
 	res.redirect('/runconfig');
 });
+
+app.post('/save', function(req, res) {
+	testInfo.update(req.body);
+	res.end('Saved');
+});
+
+app.get('/lastresult', function(req, res) {
+	res.render("result");
+});
+
+function parseDLL() {
+	new Executor({
+		program: getPath(config.DLLParserApp),
+		args: {
+			inputFile: getPath(config.testAssemblyPath),
+			outputFile: config.parsedDLLFile
+		}
+	});
+}
 
 function buildTestList(obj) {
 	var testList = [];
@@ -112,15 +138,6 @@ function moveReportToView(res) {
 		}
 	});
 }
-
-app.post('/save', function(req, res) {
-	testInfo.update(req.body);
-	res.end('Saved');
-});
-
-app.get('/lastresult', function(req, res) {
-	res.render("result");
-});
 
 //run app
 var server = app.listen(config.PORT, function () {
