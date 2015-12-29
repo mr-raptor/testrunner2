@@ -2,7 +2,7 @@ var express		= require('express');
 var bodyParser	= require('body-parser');
 
 // My
-var config		= require('./config.json');
+var c		= require('./config.json');
 var getPath		= require('./util').getPath;
 var Executor 	= require('./Executor');
 var testInfo 	= require('./testInfo');
@@ -19,30 +19,23 @@ console.log = function(message) {
 }
 
 app.get('/', function(req, res) {
-	var configs = ['olol.txt', 'virus.exe', config.testInfoFile];
-	res.render('pages/configSelector', {
-		configs: configs
+	// get configs from database
+	testInfo.getConfigList(function(list) {
+		res.render('pages/configSelector', {
+			configs: list
+		});
 	});
 });
 
 app.get('/config', function(req, res) {
 	testInfo.currentTestInfo = req.query['name'];
 	testInfo.readFile(function(obj) {
-		res.render('pages/index', {
+		res.render('pages/configPage', {
 			fixtures: obj.fixtures,
-			browsers: config.browsers
+			browsers: c.browsers
 		});
 	});
 });
-
-/*app.get('/', function(req, res) {
-	testInfo.readFile(function(obj) {
-		res.render('pages/index', {
-			fixtures: obj.fixtures,
-			browsers: config.browsers
-		});
-	});
-});*/
 
 app.get('/parse', function(req, res) {
 	parseDLL();
@@ -67,16 +60,24 @@ app.post('/save', function(req, res) {
 	res.end('Saved');
 });
 
+app.get('/saveas', function(req, res) {
+	console.log(testInfo.getConfigList());
+});
+
+app.post('/addConfig', function(req, res) {
+	res.end("Ok!");
+});
+
 app.get('/lastresult', function(req, res) {
 	res.render("result");
 });
 
 function parseDLL() {
 	new Executor({
-		program: getPath(config.DLLParserApp),
+		program: getPath(c.DLLParserApp),
 		args: {
-			inputFile: getPath(config.testAssemblyPath),
-			outputFile: config.parsedDLLFile
+			inputFile: getPath(c.testAssemblyPath),
+			outputFile: c.parsedDLLFile
 		}
 	});
 }
@@ -97,10 +98,10 @@ function buildTestList(obj) {
 
 function runTests(testlist, res) {
 	new Executor({
-		program: getPath(config.nunitApp),
+		program: getPath(c.nunitApp),
 		args: {
 			tests: "/test:" + testlist,
-			assembly: getPath(config.testAssemblyPath)
+			assembly: getPath(c.testAssemblyPath)
 		},
 		anywayAction: function() {
 			generateReport(res);
@@ -110,7 +111,7 @@ function runTests(testlist, res) {
 
 function generateReport(res) {
 	new Executor({
-		program: getPath(config.HTMLReportApp),
+		program: getPath(c.HTMLReportApp),
 		args: {
 			inputFile: "TestResult.xml",
 			outputFile: "result.html"
@@ -140,9 +141,8 @@ function moveReportToView(res) {
 }
 
 //run app
-var server = app.listen(config.PORT, function () {
+var server = app.listen(c.PORT, function () {
 	var host = server.address().address;
 	var port = server.address().port;
-
 	console.log('Example app listening at http://'+host+':'+port);
 });

@@ -80,6 +80,10 @@
     <header>
         <% include ../partials/header %>
     </header>
+	<div id="side_panel">
+		<a id="run_tests" href="#" class="button-0">Run!</a>	
+		<a id="save_tests" href="#" class="button-0">Save</a>		
+	</div>		
 	<div id="content">
 		<div class="browsers">
 		<% browsers.forEach(browser => { %>
@@ -117,10 +121,8 @@
 			</div>
 		</div>
 		<% }); %>
-	</div>
+	</div>	
     <footer>
-		<a id="run_tests" href="#" class="button-0">Run!</a>	
-		<a id="save_tests" href="#" class="button-0">Save</a>	
         <% include ../partials/footer %>
     </footer>
 </body>

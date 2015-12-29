@@ -1,7 +1,19 @@
 <html>
 <head>
     <% include ../partials/head %>
-	<script></script>
+	<script>
+		$(document).ready(function() {
+			$('#add_new').click(function() {
+				$.ajax({
+					method: "POST",
+					url: "/addConfig",
+					data: $('#configName').val()
+				}).done(function(msg) {
+					$('#message').html(msg);
+				});
+			});
+		});
+	</script>
 </head>
 <body>
     <header>
@@ -13,6 +25,7 @@
 			<% configs.forEach(configName => { %>
 				<li><a href="/config?name=<%=configName%>"><%=configName%></a></li>
 			<% }); %>
+			<li><input type="text" id="configName"/><button id="add_new">New</button></li>
 		</ul>
 	</div>
     <footer>	
