@@ -46,7 +46,8 @@ function parseDLL() {
 app.get('/runconfig', function(req, res) {
 	testInfo.readFile(function(obj) {
 		var testList = buildTestList(obj);
-		runTests(testList, res);
+		runTests(testList);
+		res.end("Ok!");
 	});
 });
 
@@ -69,7 +70,7 @@ function buildTestList(obj) {
 	return testList.join();
 }
 
-function runTests(testlist, res) {
+function runTests(testlist) {
 	new Executor({
 		program: getPath(config.nunitApp),
 		args: {
@@ -77,12 +78,12 @@ function runTests(testlist, res) {
 			assembly: getPath(config.testAssemblyPath)
 		},
 		anywayAction: function() {
-			generateReport(res);
+			generateReport();
 		}
 	});
 }
 
-function generateReport(res) {
+function generateReport() {
 	new Executor({
 		program: getPath(config.HTMLReportApp),
 		args: {
@@ -90,16 +91,15 @@ function generateReport(res) {
 			outputFile: "result.html"
 		},
 		successAction: function() {
-			moveReportToView(res);
+			moveReportToView();
 		},
 		errorAction: function(err) {
 			console.log(err);
-			res.send(err);
 		}
 	});
 }
 
-function moveReportToView(res) {
+function moveReportToView() {
 	new Executor({
 		program: "MOVE",
 		args: {
@@ -108,7 +108,7 @@ function moveReportToView(res) {
 			moveTo: "./views/result.ejs"
 		},
 		successAction: function() {
-			res.send("<a href='/lastresult'>Test Results</a>");
+			console.log("Done!");
 		}
 	});
 }
