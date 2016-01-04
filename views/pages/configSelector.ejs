@@ -1,18 +1,18 @@
 <html>
 <head>
     <% include ../partials/head %>
+	<style>
+		.delete_button {
+			display: none;
+			color: grey;
+			float: right;
+		}
+		li:hover .delete_button {
+			display: block;
+		}
+	</style>
 	<script>
-		$(document).ready(function() {
-			$('#add_new').click(function() {
-				$.ajax({
-					method: "POST",
-					url: "/addConfig",
-					data: $('#configName').val()
-				}).done(function(msg) {
-					$('#message').html(msg);
-				});
-			});
-		});
+		$(document).ready(function() {	});
 	</script>
 </head>
 <body>
@@ -23,9 +23,17 @@
 		<h2>Select config:</h2>
 		<ul>
 			<% configs.forEach(configName => { %>
-				<li><a href="/config?name=<%=configName%>"><%=configName%></a></li>
+				<li>
+					<a href="/testInfo/<%=configName%>"><%=configName%></a> 
+					<a class="delete_button" href="configs/deleteConfig/<%=configName%>">Delete</a>
+				</li>
 			<% }); %>
-			<li><input type="text" id="configName"/><button id="add_new">New</button></li>
+			<li>
+				<form method="POST" action="configs/config">
+					<input id="configName" type="text" name="configName" />
+					<input id="add_new" type="submit" value="New" />
+				</form>
+			</li>
 		</ul>
 	</div>
     <footer>	
