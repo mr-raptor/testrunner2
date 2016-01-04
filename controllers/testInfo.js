@@ -12,6 +12,7 @@ router.get('/:id', function(req, res) {
 	configs.findOne({name: req.params.id}, function(err, obj) {		
 		synchronize(obj, function(obj) {
 			res.render('pages/configPage', {
+				testInfoName: obj.name,
 				fixtures: obj.data.fixtures,
 				browsers: c.browsers
 			});
@@ -19,24 +20,39 @@ router.get('/:id', function(req, res) {
 	});
 });
 
-/*router.get('/runconfig', function(req, res) {
-	testInfo.readFile(function(obj) {
-		var testList = buildTestList(obj);
+router.post('/run/:id', function(req, res) {
+	updateConfig(req.params.id, req.body, function(data) {
+		var testList = buildTestList(data);
 		runTests(testList, res);
 	});
 });
 
-router.post('/run', function(req, res) {
-	testInfo.update(req.body);
-	res.redirect('/runconfig');
+router.post('/save/:id', function(req, res) {
+	updateConfig(req.params.id, req.body, function() {
+		res.end('Saved');
+	});
 });
 
-router.post('/save', function(req, res) {
-	testInfo.update(req.body);
-	res.end('Saved');
-});
+function updateConfig(configName, data, callback) {
+	var configs = db.get().collection('configs');
+	var newObj = {
+		name: configName,
+		data: data
+	};
+	configs.update(
+		{name: configName},
+		newObj,
+		{upsert: true},
+		function(err, results) {
+			if(err) {
+				console.log(err);
+			}
+			callback(data);
+		}
+	);
+}
 
-router.get('/saveas', function(req, res) {
+/*router.get('/saveas', function(req, res) {
 	console.log(testInfo.getConfigList());
 });*/
 

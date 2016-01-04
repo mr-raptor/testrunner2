@@ -35,10 +35,11 @@
 		}
 	
 		$(document).ready(function() {
+			var testInfoName = $('input[name="testInfo"]').val();
 			$('#run_tests').click(function() {
 				$.ajax({
 					method: "POST",
-					url: "/testInfo/run",
+					url: "/testInfo/run/" + testInfoName,
 					contentType: "application/json",
 					data: JSON.stringify(getTestData())
 				}).done(function(msg) {
@@ -49,7 +50,7 @@
 			$('#save_tests').click(function() {
 				$.ajax({
 					method: "POST",
-					url: "/testInfo/save",
+					url: "/testInfo/save/" + testInfoName,
 					contentType: "application/json",
 					data: JSON.stringify(getTestData())
 				}).done(function(msg) {
@@ -85,6 +86,7 @@
 		<a id="save_tests" href="#" class="button-0">Save</a>		
 	</div>		
 	<div id="content">
+		<input type="hidden" name="testInfo" value="<%=testInfoName%>" />
 		<div class="browsers">
 		<% browsers.forEach(browser => { %>
 			<span class="browser"><%=browser%></span>
