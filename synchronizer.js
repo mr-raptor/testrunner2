@@ -4,25 +4,24 @@ var c = require('./appConfig.json');
 var Executor = require('./Executor');
 var getPath = require('./util').getPath;
 
-var testInfo = {
-	sync: function(config, callback) {
-		parseDLL();
-		jsonfile.readFile(c.parsedDLLFile, function(err, dll) {
-			if(err != null) {
-				console.log(err);
-			} else {
-				// if config is new
-				if(config.data === undefined) {
-					config.data = {};
-				}
-				if(config.data.fixtures === undefined) {
-					config.data.fixtures = [];
-				}				
-				config.data = synchronizeTestInfo(config.data, dll);
-				callback(config);
+module.exports.synchronize = function(config, callback) {
+	parseDLL();
+	jsonfile.readFile(c.parsedDLLFile, function(err, dll) {
+		if(err != null) {
+			console.log(err);
+		} else {
+			// if config is new
+			if(config.data === undefined) {
+				config.data = {};
 			}
-		});
-	}
+			if(config.data.fixtures === undefined) {
+				config.data.fixtures = [];
+			}
+			
+			config.data = synchronizeTestInfo(config.data, dll);
+			callback(config);
+		}
+	});
 }
 
 function parseDLL() {
@@ -54,9 +53,7 @@ function synchronizeTestInfo(testInfo, dll) {
 			testInfo.fixtures.push(fixture);
 		} else {
 			// If fixture exists, add new tests
-			var newTests = fixture.tests.filter(test => {
-				return !searchTest(test, oldFixture.tests);
-			});								
+			var newTests = fixture.tests.filter(test => !searchTest(test, oldFixture.tests));								
 			oldFixture.tests = oldFixture.tests.concat(newTests);
 		}
 		
@@ -80,5 +77,3 @@ function searchFixture(fixtureName, source) {
 		return fixtureName === fixture.name;
 	});
 }
-
-module.exports = testInfo;

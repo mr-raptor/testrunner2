@@ -7,7 +7,7 @@ router.get('/', function(req, res) {
 	var configs = db.get().collection('configs');
 	
 	configs.find().toArray(function(err, docs) {
-		var configNames = docs.map(doc => doc.name );
+		var configNames = docs.map(doc => doc.name);
 		res.render('pages/configSelector', {
 			configs: configNames
 		});

@@ -4,13 +4,13 @@ var express = require('express'),
 var c = require('../appConfig');
 var getPath = require('../util').getPath;
 var Executor = require('../Executor');
-var testInfo = require('../testInfo.js');
+var synchronize = require('../synchronizer').synchronize;
 var db = require('../db');
 
 router.get('/:id', function(req, res) {
 	var configs = db.get().collection('configs');
 	configs.findOne({name: req.params.id}, function(err, obj) {		
-		testInfo.sync(obj, function(obj) {
+		synchronize(obj, function(obj) {
 			res.render('pages/configPage', {
 				fixtures: obj.data.fixtures,
 				browsers: c.browsers
@@ -19,7 +19,7 @@ router.get('/:id', function(req, res) {
 	});
 });
 
-router.get('/runconfig', function(req, res) {
+/*router.get('/runconfig', function(req, res) {
 	testInfo.readFile(function(obj) {
 		var testList = buildTestList(obj);
 		runTests(testList, res);
@@ -38,7 +38,7 @@ router.post('/save', function(req, res) {
 
 router.get('/saveas', function(req, res) {
 	console.log(testInfo.getConfigList());
-});
+});*/
 
 function buildTestList(obj) {
 	var testList = [];
