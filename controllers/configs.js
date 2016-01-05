@@ -4,6 +4,7 @@ var express = require('express'),
 var db = require('../db');
 
 router.get('/', function(req, res) {
+	// need to avoid this boilerplate
 	var configs = db.get().collection('configs');
 	
 	configs.find().toArray(function(err, docs) {

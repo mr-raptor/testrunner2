@@ -1,11 +1,11 @@
 var express = require('express'),
 	router = express.Router();
 
+var db = require('../db');
 var c = require('../appConfig');
 var getPath = require('../util').getPath;
 var Executor = require('../Executor');
 var synchronize = require('../synchronizer').synchronize;
-var db = require('../db');
 
 router.get('/:id', function(req, res) {
 	var configs = db.get().collection('configs');
