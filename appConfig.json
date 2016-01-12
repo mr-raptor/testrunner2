@@ -1,10 +1,11 @@
 {
 	"PORT": 3000,
 	"nunitApp": "D:\\Program Files (x86)\\NUnit.org\\nunit3-console.exe",
-	"testAssemblyPath": "D:\\Selenium\\AdoramaAutoTests\\AdoramaAutoTests\\bin\\Debug\\AdoramaAutoTests.dll",
+	"testAssemblyPath": "D:\\Selenium\\adoramaautotests\\Tests\\bin\\Debug\\Tests.dll",
 	"HTMLReportApp": "ReportGenerator/ReportUnit.exe",
 	"DLLParserApp": "dll_parser/parser.exe",
 	"browsers": ["chrome", "firefox"],
 	"testInfoFile": "testInfo.json",
-	"parsedDLLFile": "parsed.json"
+	"parsedDLLFile": "parsed.json",
+	"dbConnection": "mongodb://localhost:27017/testrunner"
 }
