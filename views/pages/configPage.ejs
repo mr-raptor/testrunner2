@@ -74,6 +74,11 @@
 				}
 				$(v).prop('checked', all_tests_checked);
 			});
+			
+			$(".toggle_data").hide();
+			$(".toggle").click(function(){
+				$(this).toggleClass("active").find(".toggle_data").slideToggle("normal");
+			});
 		});
 	</script>
 </head>
@@ -93,7 +98,7 @@
 		<% }); %>
 		</div>
 		<% fixtures.forEach(fixture => { %>
-		<div class="fixture" name="<%=fixture.name%>" >
+		<div class="fixture toggle" name="<%=fixture.name%>" >
 			<h4>
 				<input class="all_tests" type="checkbox" />
 				<%= fixture.name %>
@@ -104,7 +109,7 @@
 				</div-->				
 			</h4>
 
-			<div>	
+			<div class="toggle_data">	
 				<ul>		
 				<% fixture.tests.forEach(test => { %>
 					<li>
