@@ -77,7 +77,7 @@
 			
 			$(".toggle_data").hide();
 			$(".toggle").click(function(){
-				$(this).toggleClass("active").find(".toggle_data").slideToggle("normal");
+				$(this).toggleClass("active").closest('.fixture').find(".toggle_data").slideToggle("normal");
 			});
 		});
 	</script>
@@ -98,10 +98,12 @@
 		<% }); %>
 		</div>
 		<% fixtures.forEach(fixture => { %>
-		<div class="fixture toggle" name="<%=fixture.name%>" >
+		<div class="fixture" name="<%=fixture.name%>" >		
 			<h4>
-				<input class="all_tests" type="checkbox" />
-				<%= fixture.name %>
+				<input class="all_tests" type="checkbox" />				
+				<span class="toggle">
+					<%= fixture.name %>
+				</span>
 				<!--div class="browsers">
 				<% browsers.forEach(browser => { %>
 					<input class="browser" type="checkbox" />

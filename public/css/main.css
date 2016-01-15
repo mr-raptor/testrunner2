@@ -57,3 +57,7 @@ div.browsers {
 	margin-left: 100;
 	margin-right: 100;
 }
+
+.toggle {
+	cursor: pointer;
+}
