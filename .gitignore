@@ -1,0 +1,5 @@
+node_modules/
+data/
+appConfig.json
+parsed.json
+TestResult.xml

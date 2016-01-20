@@ -1,69 +1,53 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<test-run id="2" testcasecount="5" result="Failed" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.0.5797.27553" clr-version="4.0.30319.42000" start-time="2015-12-14 15:40:28Z" end-time="2015-12-14 15:40:31Z" duration="3.015938">
-  <command-line><![CDATA["D:\Program Files (x86)\NUnit.org\nunit3-console.exe"  /test:AdoramaAutoTests.Tests.CartItem.CartViewTests.RegularItem_2 "D:\Selenium\AdoramaAutoTests\AdoramaAutoTests\bin\Debug\AdoramaAutoTests.dll" ]]></command-line>
+<test-run id="2" testcasecount="1984" result="Failed" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.0.5797.27553" clr-version="4.0.30319.42000" start-time="2016-01-19 17:54:14Z" end-time="2016-01-19 17:54:42Z" duration="27.485333">
+  <command-line><![CDATA["D:\Program Files (x86)\NUnit.org\nunit3-console.exe"  /test:AutoTestApp.LeisurePro.Share.API(\"firefox\").AddToWishList "D:\Selenium\AutoTestApp\AutoTestApp.LeisurePro\bin\Debug\AutoTestApp.LeisurePro.dll" ]]></command-line>
   <filter>
-    <test>AdoramaAutoTests.Tests.CartItem.CartViewTests.RegularItem_2</test>
+    <test>AutoTestApp.LeisurePro.Share.API("firefox").AddToWishList</test>
   </filter>
-  <test-suite type="Assembly" id="0-1010" name="AdoramaAutoTests.dll" fullname="D:\Selenium\AdoramaAutoTests\AdoramaAutoTests\bin\Debug\AdoramaAutoTests.dll" runstate="Runnable" testcasecount="5" result="Failed" site="Child" start-time="2015-12-14 15:40:28Z" end-time="2015-12-14 15:40:31Z" duration="2.863207" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+  <test-suite type="Assembly" id="0-3129" name="AutoTestApp.LeisurePro.dll" fullname="D:\Selenium\AutoTestApp\AutoTestApp.LeisurePro\bin\Debug\AutoTestApp.LeisurePro.dll" runstate="Runnable" testcasecount="1984" result="Failed" site="Child" start-time="2016-01-19 17:54:14Z" end-time="2016-01-19 17:54:42Z" duration="27.391885" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
     <environment framework-version="3.0.5813.39031" clr-version="4.0.30319.42000" os-version="Microsoft Windows NT 6.1.7601 Service Pack 1" platform="Win32NT" cwd="D:\Selenium\TestRunner" machine-name="VOLOSHYN-PC" user="Admin" user-domain="VOLOSHYN-PC" culture="ru-RU" uiculture="ru-RU" os-architecture="x64" />
     <settings>
       <setting name="WorkDirectory" value="D:\Selenium\TestRunner" />
       <setting name="NumberOfTestWorkers" value="4" />
     </settings>
     <properties>
-      <property name="_PID" value="7928" />
+      <property name="_PID" value="10856" />
       <property name="_APPDOMAIN" value="test-domain-" />
     </properties>
     <failure>
       <message><![CDATA[One or more child tests had errors]]></message>
     </failure>
-    <test-suite type="TestSuite" id="0-1011" name="AdoramaAutoTests" fullname="AdoramaAutoTests" runstate="Runnable" testcasecount="5" result="Failed" site="Child" start-time="2015-12-14 15:40:28Z" end-time="2015-12-14 15:40:31Z" duration="2.854045" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <test-suite type="TestSuite" id="0-3130" name="AutoTestApp" fullname="AutoTestApp" runstate="Runnable" testcasecount="1984" result="Failed" site="Child" start-time="2016-01-19 17:54:14Z" end-time="2016-01-19 17:54:42Z" duration="27.382002" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
       <failure>
         <message><![CDATA[One or more child tests had errors]]></message>
       </failure>
-      <test-suite type="TestSuite" id="0-1012" name="Tests" fullname="AdoramaAutoTests.Tests" runstate="Runnable" testcasecount="5" result="Failed" site="Child" start-time="2015-12-14 15:40:28Z" end-time="2015-12-14 15:40:31Z" duration="2.853926" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <test-suite type="TestSuite" id="0-3131" name="LeisurePro" fullname="AutoTestApp.LeisurePro" runstate="Runnable" testcasecount="1984" result="Failed" site="Child" start-time="2016-01-19 17:54:14Z" end-time="2016-01-19 17:54:42Z" duration="27.381673" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
         <failure>
           <message><![CDATA[One or more child tests had errors]]></message>
         </failure>
-        <test-suite type="TestSuite" id="0-1014" name="CartItem" fullname="AdoramaAutoTests.Tests.CartItem" runstate="Runnable" testcasecount="4" result="Failed" site="Child" start-time="2015-12-14 15:40:28Z" end-time="2015-12-14 15:40:31Z" duration="2.853882" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <test-suite type="TestSuite" id="0-3132" name="Share" fullname="AutoTestApp.LeisurePro.Share" runstate="Runnable" testcasecount="712" result="Failed" site="Child" start-time="2016-01-19 17:54:14Z" end-time="2016-01-19 17:54:42Z" duration="27.381546" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
           <failure>
             <message><![CDATA[One or more child tests had errors]]></message>
           </failure>
-          <test-suite type="TestFixture" id="0-1006" name="CartViewTests" fullname="AdoramaAutoTests.Tests.CartItem.CartViewTests" classname="AdoramaAutoTests.Tests.CartItem.CartViewTests" runstate="Runnable" testcasecount="2" result="Failed" label="Error" start-time="2015-12-14 15:40:28Z" end-time="2015-12-14 15:40:31Z" duration="2.846226" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
-            <properties>
-              <property name="ParallelScope" value="Self" />
-            </properties>
+          <test-suite type="ParameterizedFixture" id="0-1088" name="API" fullname="AutoTestApp.LeisurePro.Share.API" runstate="Runnable" testcasecount="84" result="Failed" site="Child" start-time="2016-01-19 17:54:14Z" end-time="2016-01-19 17:54:42Z" duration="27.381391" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
             <failure>
-              <message><![CDATA[OpenQA.Selenium.WebDriverException : Unexpected error. System.Net.WebException: Невозможно соединиться с удаленным сервером ---> System.Net.Sockets.SocketException: Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение 10.10.1.143:1111
-   в System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
-   в System.Net.ServicePoint.ConnectSocketInternal(Boolean connectFailure, Socket s4, Socket s6, Socket& socket, IPAddress& address, ConnectSocketState state, IAsyncResult asyncResult, Exception& exception)
-   --- Конец трассировки внутреннего стека исключений ---
-   в System.Net.HttpWebRequest.GetRequestStream(TransportContext& context)
-   в System.Net.HttpWebRequest.GetRequestStream()
-   в OpenQA.Selenium.Remote.HttpCommandExecutor.Execute(Command commandToExecute)
-   в OpenQA.Selenium.Remote.RemoteWebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)]]></message>
-              <stack-trace><![CDATA[   в OpenQA.Selenium.Remote.RemoteWebDriver.UnpackAndThrowOnError(Response errorResponse)
-   в OpenQA.Selenium.Remote.RemoteWebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
-   в OpenQA.Selenium.Remote.RemoteWebDriver.StartSession(ICapabilities desiredCapabilities)
-   в OpenQA.Selenium.Remote.RemoteWebDriver..ctor(ICommandExecutor commandExecutor, ICapabilities desiredCapabilities)
-   в OpenQA.Selenium.Remote.RemoteWebDriver..ctor(Uri remoteAddress, ICapabilities desiredCapabilities)
-   в AdoramaAutoTests.Framework.BaseTest.RunBeforeAnyTests() в D:\Selenium\adoramaautotests\AdoramaAutoTests\Framework\BaseTest.cs:строка 37]]></stack-trace>
+              <message><![CDATA[One or more child tests had errors]]></message>
             </failure>
-            <test-case id="0-1009" name="RegularItem_2" fullname="AdoramaAutoTests.Tests.CartItem.CartViewTests.RegularItem_2" methodname="RegularItem_2" classname="AdoramaAutoTests.Tests.CartItem.CartViewTests" runstate="Runnable" seed="1460656856" result="Failed" label="Error" site="Parent" start-time="0001-01-01 00:00:00Z" end-time="0001-01-01 00:00:00Z" duration="0.000000" asserts="0">
+            <test-suite type="TestFixture" id="0-1022" name="API(&quot;firefox&quot;)" fullname="AutoTestApp.LeisurePro.Share.API(&quot;firefox&quot;)" classname="AutoTestApp.LeisurePro.Share.API" runstate="Runnable" testcasecount="21" result="Failed" site="Child" start-time="2016-01-19 17:54:14Z" end-time="2016-01-19 17:54:42Z" duration="27.376278" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
               <properties>
-                <property name="Description" value="Add items to cart" />
+                <property name="ParallelScope" value="Self" />
               </properties>
               <failure>
-                <message><![CDATA[OneTimeSetUp: OpenQA.Selenium.WebDriverException : Unexpected error. System.Net.WebException: Невозможно соединиться с удаленным сервером ---> System.Net.Sockets.SocketException: Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение 10.10.1.143:1111
-   в System.Net.Sockets.Socket.DoConnect(EndPoint endPointSnapshot, SocketAddress socketAddress)
-   в System.Net.ServicePoint.ConnectSocketInternal(Boolean connectFailure, Socket s4, Socket s6, Socket& socket, IPAddress& address, ConnectSocketState state, IAsyncResult asyncResult, Exception& exception)
-   --- Конец трассировки внутреннего стека исключений ---
-   в System.Net.HttpWebRequest.GetRequestStream(TransportContext& context)
-   в System.Net.HttpWebRequest.GetRequestStream()
-   в OpenQA.Selenium.Remote.HttpCommandExecutor.Execute(Command commandToExecute)
-   в OpenQA.Selenium.Remote.RemoteWebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)]]></message>
+                <message><![CDATA[One or more child tests had errors]]></message>
               </failure>
-            </test-case>
+              <test-case id="0-1028" name="AddToWishList" fullname="AutoTestApp.LeisurePro.Share.API(&quot;firefox&quot;).AddToWishList" methodname="AddToWishList" classname="AutoTestApp.LeisurePro.Share.API" runstate="Runnable" seed="1567116626" result="Failed" label="Error" start-time="2016-01-19 17:54:19Z" end-time="2016-01-19 17:54:19Z" duration="0.079929" asserts="0">
+                <failure>
+                  <message><![CDATA[System.NullReferenceException : Ссылка на объект не указывает на экземпляр объекта.]]></message>
+                  <stack-trace><![CDATA[   в AutoTestApp.LeisurePro.Interactions.NavigationAction.GoToHomePage() в D:\Selenium\AutoTestApp\AutoTestApp.LeisurePro\Interactions\NavigationAction.cs:строка 32
+   в AutoTestApp.LeisurePro.Share.API.AddToWishList() в D:\Selenium\AutoTestApp\AutoTestApp.LeisurePro\Share\API.cs:строка 562]]></stack-trace>
+                </failure>
+              </test-case>
+            </test-suite>
           </test-suite>
         </test-suite>
       </test-suite>
