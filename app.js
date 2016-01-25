@@ -1,5 +1,6 @@
 var express	= require('express');
 var bodyParser = require('body-parser');
+var path = require('path');
 
 var c = require('./appConfig.json');
 var db = require('./db');
@@ -33,6 +34,10 @@ db.connect(c.dbConnection, function(err) {
 
 app.get('/', function(req, res) {
 	res.redirect('/configs');
+});
+
+app.get('/getfile', function(req, res) {
+	res.sendFile(path.join(c.reportFilesFolder, req.query["name"]));
 });
 
 app.get('/lastresult', function(req, res) {

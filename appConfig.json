@@ -2,6 +2,7 @@
 	"PORT": 3000,
 	"nunitApp": "D:\\Program Files (x86)\\NUnit.org\\nunit3-console.exe",
 	"testAssemblyPath": "D:\\Selenium\\AutoTestApp\\AutoTestApp.Adorama\\bin\\Debug\\AutoTestApp.Adorama.dll",
+	"reportFilesFolder": "D:\\Selenium\\AutoTestApp\\TestResults\\",
 	"HTMLReportApp": "ReportGenerator/ReportUnit.exe",
 	"DLLParserApp": "dll_parser/parser.exe",
 	"browsers": ["chrome", "firefox"],
