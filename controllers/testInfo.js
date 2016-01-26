@@ -1,5 +1,6 @@
 var express = require('express'),
 	router = express.Router();
+var fs = require('fs');
 
 var db = require('../db');
 var c = require('../appConfig');
@@ -35,21 +36,29 @@ router.post('/save/:id', function(req, res) {
 
 function updateConfig(configName, data, callback) {
 	var configs = db.get().collection('configs');
-	var newObj = {
-		name: configName,
-		data: data
-	};
-	configs.update(
-		{name: configName},
-		newObj,
-		{upsert: true},
-		function(err, results) {
-			if(err) {
-				console.log(err);
+	if(!data) {			
+		var newObj = {
+			name: configName,
+			data: data
+		};
+		configs.update(
+			{name: configName},
+			newObj,
+			{upsert: true},
+			function(err, results) {
+				if(err) {
+					console.log(err);
+				}
+				callback(data);
 			}
-			callback(data);
-		}
-	);
+		);
+	} else {
+		configs.findOne({name: configName}, function(err, obj) {
+			if(err)
+				return console.log(err);
+			callback(obj);
+		});
+	}
 }
 
 /*router.get('/saveas', function(req, res) {
@@ -109,7 +118,19 @@ function moveReportToView(res) {
 			moveTo: "./views/result.ejs"
 		},
 		successAction: function() {
-			res.send("<a href='/lastresult'>Test Results</a>");
+			fs.readFile("./views/result.ejs", 'utf8', function(err,data) {
+				if(err) {
+					return console.log(err);
+				}
+				var regex = new RegExp("["+c.reportFilesFolder+"]", 'gi');
+				data = data.replace(regex, "/getFile?name=");
+				fs.writeFile("./views/result.ejs", data, function(err) {
+					if(err) {
+						return console.log(err);
+					}
+					res.send("<a href='/lastresult'>Test Results</a>");
+				});
+			});
 		}
 	});
 }
