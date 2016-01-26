@@ -5,7 +5,23 @@ var Executor = require('./Executor');
 var getPath = require('./util').getPath;
 
 module.exports.synchronize = function(config, callback) {
-	parseDLL();
+	parseDLL(syncFile, config, callback);
+}
+
+function parseDLL(cb, config, callback) {
+	new Executor({
+		program: getPath(c.DLLParserApp),
+		args: {
+			inputFile: getPath(c.testAssemblyPath),
+			outputFile: c.parsedDLLFile
+		},
+		successAction: function() {
+			cb(config, callback);
+		}
+	});
+}
+
+function syncFile(config, callback) {
 	jsonfile.readFile(c.parsedDLLFile, function(err, dll) {
 		if(err != null) {
 			console.log(err);
@@ -21,17 +37,7 @@ module.exports.synchronize = function(config, callback) {
 			config.data = synchronizeTestInfo(config.data, dll);
 			callback(config);
 		}
-	});
-}
-
-function parseDLL() {
-	new Executor({
-		program: getPath(c.DLLParserApp),
-		args: {
-			inputFile: getPath(c.testAssemblyPath),
-			outputFile: c.parsedDLLFile
-		}
-	});
+	});	
 }
 
 function synchronizeTestInfo(testInfo, dll) {	

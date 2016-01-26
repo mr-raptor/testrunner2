@@ -36,7 +36,7 @@ app.get('/', function(req, res) {
 	res.redirect('/configs');
 });
 
-app.get('/getfile', function(req, res) {
+app.get('/getFile', function(req, res) {
 	res.sendFile(path.join(c.reportFilesFolder, req.query["name"]));
 });
 
