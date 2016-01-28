@@ -33,9 +33,17 @@
 			});
 			return data;
 		}
-	
+		
+		function updateMessage(msg) {
+			$('#message').fadeOut(500, function() {
+				$(this).html(msg).fadeIn(500);
+			});
+		}
+		
 		$(document).ready(function() {
 			var testInfoName = $('input[name="testInfo"]').val();
+			
+			// Save tests configuration and run tests
 			$('#run_tests').click(function() {
 				$.ajax({
 					method: "POST",
@@ -43,10 +51,11 @@
 					contentType: "application/json",
 					data: JSON.stringify(getTestData())
 				}).done(function(msg) {
-					$('#message').html(msg);
+					updateMessage(msg);
 				});
 			});
 			
+			// Just save tests configuration
 			$('#save_tests').click(function() {
 				$.ajax({
 					method: "POST",
@@ -54,10 +63,11 @@
 					contentType: "application/json",
 					data: JSON.stringify(getTestData())
 				}).done(function(msg) {
-					$('#message').html(msg);
+					updateMessage(msg);
 				});
 			});
 			
+			// Un/check all tests in fixture on checkbox click
 			$('.all_tests').change(function() {
 				var $fixture = $(this).closest('.fixture');
 				var checked = this.checked;
@@ -66,6 +76,24 @@
 				});
 			});
 			
+			// Dis/activate browsers checkboxes for test on checkbox click
+			$('input.test').on('DOMAttrModified change input', function() {
+				if(this.checked) {
+					var $test = $(this).closest('div.test');
+					$.each($test.find('input.browser'), function(i,v) {
+						$(v).click();
+					});
+				}
+			});
+			
+			/*$('input.test').toggle(function() {
+				var $test = $(this).closest('div.test');
+				$.each($test.find('input.browser'), function(i,v) {
+					$(v).click();
+				});
+			});*/
+			
+			// If all tests in fixture are active, then check fixture checkbox
 			$.each($('.all_tests'), function(i,v) {
 				var tests = $(this).closest('.fixture').find('input.test');
 				var all_tests_checked = true;
@@ -75,64 +103,74 @@
 				$(v).prop('checked', all_tests_checked);
 			});
 			
+			// Expanding of tests by fixture
 			$(".toggle_data").hide();
 			$(".toggle").click(function(){
-				$(this).toggleClass("active").closest('.fixture').find(".toggle_data").slideToggle("normal");
+				$(this).toggleClass("active").closest('.fixture').find(".toggle_data").slideToggle("fast");
 			});
 		});
 	</script>
 </head>
 <body>
+<div class="wrapper">
     <header>
         <% include ../partials/header %>
     </header>
-	<div id="side_panel">
-		<a id="run_tests" href="#" class="button-0">Run!</a>	
-		<a id="save_tests" href="#" class="button-0">Save</a>		
-	</div>		
-	<div id="content">
-		<input type="hidden" name="testInfo" value="<%=testInfoName%>" />
-		<div class="browsers">
-		<% browsers.forEach(browser => { %>
-			<span class="browser"><%=browser%></span>
-		<% }); %>
-		</div>
-		<% fixtures.forEach(fixture => { %>
-		<div class="fixture" name="<%=fixture.name%>" >		
-			<h4>
-				<input class="all_tests" type="checkbox" />				
-				<span class="toggle">
-					<%= fixture.name %>
-				</span>
-				<!--div class="browsers">
-				<% browsers.forEach(browser => { %>
-					<input class="browser" type="checkbox" />
-				<% }); %>
-				</div-->				
-			</h4>
-
-			<div class="toggle_data">	
-				<ul>		
-				<% fixture.tests.forEach(test => { %>
-					<li>
-						<div class="test" name="<%= test.name %>" assembly="<%=test.assembly%>"> <!-- need to refactor this -->
-						<input class="test" type="checkbox" <%= test.active ? "checked" : "" %> />
-						<%= test.name %>
-						<div class="browsers">
-						<% browsers.forEach(browser => { %>
-							<input class="browser" type="checkbox" browser="<%=browser%>" <%= (test.browsers.indexOf(browser) !== -1) ? "checked" : "" %> />
-						<% }); %>
-						</div>
-						</div>
-					</li>
-				<% }); %>
-				</ul>
+	<div class="middle">
+	
+		<div class="container">
+			<main class="content">
+			<input type="hidden" name="testInfo" value="<%=testInfoName%>" />
+			<div class="browsers">
+			<% browsers.forEach(browser => { %>
+				<span class="browser"><%=browser%></span>
+			<% }); %>
 			</div>
+			<% fixtures.forEach(fixture => { %>
+			<div class="fixture" name="<%=fixture.name%>" >		
+				<h4>
+					<input class="all_tests" type="checkbox" />				
+					<span class="toggle">
+						<%= fixture.name %>
+					</span>
+				</h4>
+
+				<div class="toggle_data">	
+					<ul>		
+					<% fixture.tests.forEach(test => { %>
+						<li>
+							<div class="test" name="<%= test.name %>" assembly="<%=test.assembly%>"> <!-- need to refactor this -->
+								<input class="test" type="checkbox" <%= test.active ? "checked" : "" %> />
+								<%= test.name %>
+								<div class="browsers">
+								<% browsers.forEach(browser => { %>
+									<input class="browser" type="checkbox" browser="<%=browser%>" <%= (test.browsers.indexOf(browser) !== -1) ? "checked" : "" %> />
+								<% }); %>
+								</div>
+							</div>
+						</li>
+					<% }); %>
+					</ul>
+				</div>
+			</div>
+			<% }); %>
+			</main>
 		</div>
-		<% }); %>
-	</div>	
+		
+		<aside class="left-sidebar">
+			<div class="button">
+				<a id="run_tests" href="#" class="button-0">Run!</a>	
+			</div>
+			<div class="button">
+				<a id="save_tests" href="#" class="button-0">Save</a>
+			</div>
+			<span id="message"></span>
+		</aside>
+		
+	</div>
     <footer>
         <% include ../partials/footer %>
     </footer>
+</div>
 </body>
 </html>

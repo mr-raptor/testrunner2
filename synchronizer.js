@@ -65,7 +65,7 @@ function synchronizeTestInfo(testInfo, dll) {
 		
 		fixture.tests.forEach(test => { 
 			test.active = false;
-			test.browsers = [];
+			test.browsers = c.browsers;
 		});
 	});
 	return testInfo;

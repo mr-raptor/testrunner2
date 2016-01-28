@@ -2,14 +2,40 @@ body {
 	font-family: 'Roboto', sans-serif;
 }
 
-#side_panel {
-	position: fixed;
-	bottom: 0px;
+.wrapper {
+	width: 100%;
+	min-width: 1100px;
 }
 
-#content {
-	width: 1000px;
-	margin: 0 auto;
+header {
+	height: 40px;
+}
+
+.middle {
+	width: 100%;
+	position: relative;
+}
+.middle:after {
+	display: table;
+	clear: both;
+	content: '';
+}
+.container {
+	width: 100%;
+	float: left;
+	overflow: hidden;
+}
+.content {
+	min-width: 800px;
+	padding: 0 70px 0 270px;
+}
+
+.left-sidebar {
+	float: left;
+	width: 250px;
+	margin-left: -100%;
+	position: relative;
+	//background: #B5E3FF;
 }
 
 .button-0 {
@@ -50,14 +76,28 @@ div.fixture:hover {
 	background-color: rgba(100,100,100,0.05);
 }
 div.browsers {
+	min-width: 400px;
+	width: 30%;
 	float: right;
-	margin-right: 100;
+	margin-right: 10;
+	text-align: justify;
 }
+
+div.browsers:after {
+    content: '';
+    display: inline-block;
+    width: 100%;
+}
+
 .browser {
-	margin-left: 100;
-	margin-right: 100;
+	margin-left: 30;
+	display: inline-block;	
 }
 
 .toggle {
 	cursor: pointer;
+}
+
+#message {
+	margin-left: 5%;
 }

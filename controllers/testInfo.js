@@ -36,7 +36,7 @@ router.post('/save/:id', function(req, res) {
 
 function updateConfig(configName, data, callback) {
 	var configs = db.get().collection('configs');
-	if(!data) {			
+	if(data) {			
 		var newObj = {
 			name: configName,
 			data: data
@@ -46,16 +46,16 @@ function updateConfig(configName, data, callback) {
 			newObj,
 			{upsert: true},
 			function(err, results) {
-				if(err) {
-					console.log(err);
-				}
-				callback(data);
+				if(err) 
+					return console.log(err);
+				callback(newObj.data);
 			}
 		);
 	} else {
 		configs.findOne({name: configName}, function(err, obj) {
 			if(err)
 				return console.log(err);
+			
 			callback(obj);
 		});
 	}
@@ -122,7 +122,7 @@ function moveReportToView(res) {
 				if(err) {
 					return console.log(err);
 				}
-				var regex = new RegExp("["+c.reportFilesFolder+"]", 'gi');
+				var regex = new RegExp(c.reportFilesFolder.replace(/\\/g,'\\\\'), 'gi');
 				data = data.replace(regex, "/getFile?name=");
 				fs.writeFile("./views/result.ejs", data, function(err) {
 					if(err) {
