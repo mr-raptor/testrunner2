@@ -73,25 +73,23 @@
 				var checked = this.checked;
 				$.each($fixture.find('input.test'), function(i,v) {
 					$(v).prop('checked', checked);
+					$(v).trigger('change');
 				});
 			});
 			
 			// Dis/activate browsers checkboxes for test on checkbox click
-			$('input.test').on('DOMAttrModified change input', function() {
-				if(this.checked) {
-					var $test = $(this).closest('div.test');
-					$.each($test.find('input.browser'), function(i,v) {
-						$(v).click();
-					});
-				}
-			});
-			
-			/*$('input.test').toggle(function() {
+			$('input.test').change(function() {
+				var isTestActive = this.checked;
 				var $test = $(this).closest('div.test');
 				$.each($test.find('input.browser'), function(i,v) {
-					$(v).click();
+					$(v).prop('disabled', !isTestActive);
 				});
-			});*/
+			});
+			
+			// Call function above for all tests for initialization
+			$.each($('input.test'), function(i,v) {
+				$(v).trigger("change");
+			});
 			
 			// If all tests in fixture are active, then check fixture checkbox
 			$.each($('.all_tests'), function(i,v) {
