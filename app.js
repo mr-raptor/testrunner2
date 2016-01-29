@@ -4,6 +4,7 @@ var path = require('path');
 
 var c = require('./appConfig.json');
 var db = require('./db');
+var timeText = require('./util').timeText;
 
 var app = express();
 app.set('view engine', 'ejs');
@@ -16,7 +17,7 @@ app.use('/testInfo', require('./controllers/testInfo'));
 
 var oldLog = console.log;
 console.log = function(message) {
-	oldLog("["+(new Date()).toTimeString().substr(0,8)+"]: "+message);
+	oldLog(timeText()+": "+message);
 }
 
 db.connect(c.dbConnection, function(err) {

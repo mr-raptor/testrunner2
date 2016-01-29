@@ -4,7 +4,7 @@ var fs = require('fs');
 
 var db = require('../db');
 var c = require('../appConfig');
-var getPath = require('../util').getPath;
+var util = require('../util');
 var Executor = require('../Executor');
 var synchronize = require('../synchronizer').synchronize;
 
@@ -30,7 +30,7 @@ router.post('/run/:id', function(req, res) {
 
 router.post('/save/:id', function(req, res) {
 	updateConfig(req.params.id, req.body, function() {
-		res.end('Saved');
+		res.end(util.timeText()+' Saved');
 	});
 });
 
@@ -81,10 +81,10 @@ function buildTestList(obj) {
 
 function runTests(testlist, res) {
 	new Executor({
-		program: getPath(c.nunitApp),
+		program: util.getPath(c.nunitApp),
 		args: {
 			tests: "/test:" + testlist,
-			assembly: getPath(c.testAssemblyPath)
+			assembly: util.getPath(c.testAssemblyPath)
 		},
 		anywayAction: function() {
 			generateReport(res);
@@ -94,7 +94,7 @@ function runTests(testlist, res) {
 
 function generateReport(res) {
 	new Executor({
-		program: getPath(c.HTMLReportApp),
+		program: util.getPath(c.HTMLReportApp),
 		args: {
 			inputFile: "TestResult.xml",
 			outputFile: "result.html"
@@ -128,7 +128,7 @@ function moveReportToView(res) {
 					if(err) {
 						return console.log(err);
 					}
-					res.send("<a href='/lastresult'>Test Results</a>");
+					res.end("<a href='/lastresult'>"+util.timeText()+" Test Results</a>");
 				});
 			});
 		}
