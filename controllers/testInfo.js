@@ -21,6 +21,14 @@ router.get('/:id', function(req, res) {
 	});
 });
 
+router.get('/run/:id', function(req, res) {
+	var configs = db.get().collection('configs');
+	configs.findOne({name: req.params.id}, function(err, obj) {		
+		var testList = buildTestList(obj.data);
+		runTests(testList, res);
+	});
+});
+
 router.post('/run/:id', function(req, res) {
 	updateConfig(req.params.id, req.body, function(data) {
 		var testList = buildTestList(data);
