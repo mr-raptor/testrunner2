@@ -7,5 +7,6 @@
 	"DLLParserApp": "dll_parser/parser.exe",
 	"browsers": ["chrome", "firefox"],
 	"parsedDLLFile": "parsed.json",
-	"dbConnection": "mongodb://localhost:27017/testrunner"
+	"dbConnection": "mongodb://localhost:27017/testrunner",
+	"testListPath": "C:\\cygwin64\\home\\Admin\\testrunner\\testList.txt"
 }

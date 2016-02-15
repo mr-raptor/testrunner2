@@ -37,15 +37,17 @@ router.get('/:id', function(req, res) {
 router.get('/run/:id', function(req, res) {
 	var configs = db.get().collection('configs');
 	configs.findOne({name: req.params.id}, function(err, obj) {		
-		var testList = buildTestList(obj.data);
-		runTests(testList, res);
+		createTestListFile(obj.data, function() {
+			runTests(res);
+		});
 	});
 });
 
 router.post('/run/:id', function(req, res) {
 	updateConfig(req.params.id, req.body, function(data) {
-		var testList = buildTestList(data);
-		runTests(testList, res);
+		createTestListFile(data, function() {
+			runTests(res);
+		});
 	});
 });
 
@@ -86,6 +88,16 @@ function updateConfig(configName, data, callback) {
 	console.log(testInfo.getConfigList());
 });*/
 
+function createTestListFile(obj, callback) {
+	var testList = buildTestList(obj);
+	fs.writeFile(c.testListPath, testList, function(err) {
+		if(err)
+			return console.log(err);
+		
+		callback();
+	});
+}
+
 function buildTestList(obj) {
 	var testList = [];
 	obj.fixtures.forEach(fixture => {
@@ -93,21 +105,21 @@ function buildTestList(obj) {
 			return test.active === true;
 		}).forEach(test => {
 			test.browsers.forEach(browser => {
-				testList.push(test.assembly + "(\\\"" + browser + "\\\")." + test.name);
+				testList.push(test.assembly + "(\"" + browser + "\")." + test.name);
 			});
 		});
 	});
-	return testList.join();
+	return testList.join('\n');
 }
 
-function runTests(testlist, res) {
+function runTests(res) {
 	testRunned = true;
 	testFailed = false;
 	
 	new Executor({
 		program: util.getPath(c.nunitApp),
 		args: {
-			tests: "/test:" + testlist,
+			tests: "--testlist=" + c.testListPath,
 			assembly: util.getPath(c.testAssemblyPath)
 		},
 		errorAction: function(err) {
