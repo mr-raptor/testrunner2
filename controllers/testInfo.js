@@ -8,6 +8,19 @@ var util = require('../util');
 var Executor = require('../Executor');
 var synchronize = require('../synchronizer').synchronize;
 
+var testRunned = false;
+var testFailed = false;
+
+router.get('/checkStatus', function(req, res) {
+	if(testRunned) {
+		res.end('Running');
+	} else if (testFailed) {
+		res.end('Fail');
+	} else {
+		res.end('Success');
+	}
+});
+
 router.get('/:id', function(req, res) {
 	var configs = db.get().collection('configs');
 	configs.findOne({name: req.params.id}, function(err, obj) {		
@@ -88,13 +101,21 @@ function buildTestList(obj) {
 }
 
 function runTests(testlist, res) {
+	testRunned = true;
+	testFailed = false;
+	
 	new Executor({
 		program: util.getPath(c.nunitApp),
 		args: {
 			tests: "/test:" + testlist,
 			assembly: util.getPath(c.testAssemblyPath)
 		},
+		errorAction: function(err) {
+			testFailed = true;
+			console.log(err);
+		},
 		anywayAction: function() {
+			testRunned = false;
 			generateReport(res);
 		}
 	});
