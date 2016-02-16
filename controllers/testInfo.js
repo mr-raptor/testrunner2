@@ -38,7 +38,8 @@ router.get('/run/:id', function(req, res) {
 	var configs = db.get().collection('configs');
 	configs.findOne({name: req.params.id}, function(err, obj) {		
 		createTestListFile(obj.data, function() {
-			runTests(res);
+			runTests();
+			res.end("Ok!");
 		});
 	});
 });
@@ -46,7 +47,8 @@ router.get('/run/:id', function(req, res) {
 router.post('/run/:id', function(req, res) {
 	updateConfig(req.params.id, req.body, function(data) {
 		createTestListFile(data, function() {
-			runTests(res);
+			runTests();
+			res.end("Ok!");
 		});
 	});
 });
@@ -112,7 +114,7 @@ function buildTestList(obj) {
 	return testList.join('\n');
 }
 
-function runTests(res) {
+function runTests() {
 	testRunned = true;
 	testFailed = false;
 	
@@ -128,12 +130,12 @@ function runTests(res) {
 		},
 		anywayAction: function() {
 			testRunned = false;
-			generateReport(res);
+			generateReport();
 		}
 	});
 }
 
-function generateReport(res) {
+function generateReport() {
 	new Executor({
 		program: util.getPath(c.HTMLReportApp),
 		args: {
@@ -141,16 +143,15 @@ function generateReport(res) {
 			outputFile: "result.html"
 		},
 		successAction: function() {
-			moveReportToView(res);
+			moveReportToView();
 		},
 		errorAction: function(err) {
 			console.log(err);
-			res.send(err);
 		}
 	});
 }
 
-function moveReportToView(res) {
+function moveReportToView() {
 	new Executor({
 		program: "MOVE",
 		args: {
@@ -169,7 +170,7 @@ function moveReportToView(res) {
 					if(err) {
 						return console.log(err);
 					}
-					res.end("<a href='/lastresult'>"+util.timeText()+" Test Results</a>");
+					console.log("Done!");
 				});
 			});
 		}
