@@ -15,7 +15,7 @@ router.get('/checkStatus', function(req, res) {
 	if(testRunned) {
 		res.end('Running');
 	} else if (testFailed) {
-		res.end('Fail');
+		res.end('Failed');
 	} else {
 		res.end('Success');
 	}
@@ -48,14 +48,14 @@ router.post('/run/:id', function(req, res) {
 	updateConfig(req.params.id, req.body, function(data) {
 		createTestListFile(data, function() {
 			runTests();
-			res.end("Ok!");
+			res.end("Runned!");
 		});
 	});
 });
 
 router.post('/save/:id', function(req, res) {
 	updateConfig(req.params.id, req.body, function() {
-		res.end(util.timeText()+' Saved');
+		res.end('Saved');
 	});
 });
 

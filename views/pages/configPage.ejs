@@ -34,10 +34,12 @@
 			return data;
 		}
 		
+		function timeText() {
+			return "["+(new Date()).toTimeString().substr(0,8)+"]";
+		}
+		
 		function updateMessage(msg) {
-			$('#message').fadeOut(500, function() {
-				$(this).html(msg).fadeIn(500);
-			});
+			$('#message').prepend(timeText() + " " + msg + '<br>');
 		}
 		
 		$(document).ready(function() {
@@ -106,6 +108,24 @@
 			$(".toggle").click(function(){
 				$(this).toggleClass("active").closest('.fixture').find(".toggle_data").slideToggle("fast");
 			});
+			
+			var lastMsg;
+			
+			setInterval(function() {
+				$.ajax({
+					method: "GET",
+					url: "checkStatus",
+				}).done(function(msg) {
+					if(msg !== lastMsg) {
+						if(msg === "Success" || msg === "Failed") {
+							updateMessage("<a href='/lastresult'>Results</a>");
+						} else {
+							updateMessage(msg);
+						}
+					}
+					lastMsg = msg;
+				});
+			}, 2000);
 		});
 	</script>
 </head>
