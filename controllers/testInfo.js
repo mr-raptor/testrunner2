@@ -1,6 +1,7 @@
 var express = require('express'),
 	router = express.Router();
 var fs = require('fs');
+var parseXml = require('xml2js').parseString;
 
 var db = require('../db');
 var c = require('../appConfig');
@@ -34,21 +35,22 @@ router.get('/:id', function(req, res) {
 	});
 });
 
-router.get('/run/:id', function(req, res) {
+/*router.get('/run/:id', function(req, res) {
 	var configs = db.get().collection('configs');
 	configs.findOne({name: req.params.id}, function(err, obj) {		
-		createTestListFile(obj.data, function() {
-			runTests();
-			res.end("Ok!");
+		executeTests(obj.data, 1, function() {
+			var failed = getFailedTests();
+			executeTests(failed, 2);
+			res.end("Started");
 		});
 	});
-});
+});*/
 
 router.post('/run/:id', function(req, res) {
 	updateConfig(req.params.id, req.body, function(data) {
-		createTestListFile(data, function() {
-			runTests();
-			res.end("Runned!");
+		executeTests(data, 1, function() {
+			
+			res.end("Started");
 		});
 	});
 });
@@ -86,11 +88,42 @@ function updateConfig(configName, data, callback) {
 	}
 }
 
-/*router.get('/saveas', function(req, res) {
-	console.log(testInfo.getConfigList());
-});*/
+function executeTests(data, count, callback) {
+	createTestListFile(data, buildTestListFromDB, function() {
+		runTestList(count);
+		if(callback) {
+			callback();
+		}
+	});
+}
 
-function createTestListFile(obj, callback) {
+function executeFailedTests(count) {
+	getFailedTests(function(list) {
+		console.log(list);
+		createTestListFile(list, buildTestListFromArray, function() {
+			runTestList(count);
+		});
+	});
+}
+
+function getFailedTests(callback) {
+	fs.readFile("./TestResult.xml", function(err, data) {
+		parseXml(data, function(err, result) {
+			fixtures = result["test-run"]['test-suite'][0]['test-suite'][0]['test-suite'][0]['test-suite'][0]['test-suite'];
+			var failedTests = [];
+			fixtures.forEach(fixture => {
+				failedTests = fixture['test-case'].filter(test => {
+					return test.$.result === 'Failed';
+				}).map(test => {
+					return test.$.fullname;
+				}).concat(failedTests);
+			});
+			callback(failedTests);
+		});
+	});
+}
+
+function createTestListFile(obj, buildTestList, callback) {
 	var testList = buildTestList(obj);
 	fs.writeFile(c.testListPath, testList, function(err) {
 		if(err)
@@ -100,7 +133,11 @@ function createTestListFile(obj, callback) {
 	});
 }
 
-function buildTestList(obj) {
+function buildTestListFromArray(array) {
+	return array.join('\n');
+}
+
+function buildTestListFromDB(obj) {
 	var testList = [];
 	obj.fixtures.forEach(fixture => {
 		fixture.tests.filter(test => {
@@ -114,7 +151,7 @@ function buildTestList(obj) {
 	return testList.join('\n');
 }
 
-function runTests() {
+function runTestList(count) {
 	testRunned = true;
 	testFailed = false;
 	
@@ -122,7 +159,9 @@ function runTests() {
 		program: util.getPath(c.nunitApp),
 		args: {
 			tests: "--testlist=" + c.testListPath,
-			assembly: util.getPath(c.testAssemblyPath)
+			workers: "--workers=10",
+			assembly: util.getPath(c.testAssemblyPath),
+			output: "--result="+"TestResults/"+ count +".xml"
 		},
 		errorAction: function(err) {
 			testFailed = true;
@@ -130,7 +169,10 @@ function runTests() {
 		},
 		anywayAction: function() {
 			testRunned = false;
-			generateReport();
+			//generateReport();
+			if(count === 1) {
+				executeFailedTests(2);
+			}
 		}
 	});
 }
