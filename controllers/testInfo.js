@@ -12,6 +12,8 @@ var synchronize = require('../synchronizer').synchronize;
 var testRunned = false;
 var testFailed = false;
 
+
+
 router.get('/checkStatus', function(req, res) {
 	if(testRunned) {
 		res.end('Running');
@@ -35,23 +37,18 @@ router.get('/:id', function(req, res) {
 	});
 });
 
-/*router.get('/run/:id', function(req, res) {
+router.get('/run/:id', function(req, res) {
 	var configs = db.get().collection('configs');
 	configs.findOne({name: req.params.id}, function(err, obj) {		
-		executeTests(obj.data, 1, function() {
-			var failed = getFailedTests();
-			executeTests(failed, 2);
-			res.end("Started");
-		});
+		executeTests(obj.data);
+		res.end("Started");
 	});
-});*/
+});
 
 router.post('/run/:id', function(req, res) {
 	updateConfig(req.params.id, req.body, function(data) {
-		executeTests(data, 1, function() {
-			
-			res.end("Started");
-		});
+		executeTests(data);
+		res.end("Started");
 	});
 });
 
@@ -88,26 +85,28 @@ function updateConfig(configName, data, callback) {
 	}
 }
 
-function executeTests(data, count, callback) {
-	createTestListFile(data, buildTestListFromDB, function() {
-		runTestList(count);
-		if(callback) {
-			callback();
-		}
-	});
-}
-
-function executeFailedTests(count) {
-	getFailedTests(function(list) {
-		console.log(list);
-		createTestListFile(list, buildTestListFromArray, function() {
-			runTestList(count);
+function executeTests(data) {
+	buildTestListFromDB(data, function(testList) {
+		createTestListFile(testList, c.testList, function() {
+			runTestList(c.testList, "FirstPhase", function(reportPath) {
+				getFailedTests(reportPath, function(tests) {
+					buildTestListFromArray(tests, function(testList) {
+						createTestListFile(testList, c.testListError, function() {
+							runTestList(c.testListError, "SecondPhase", function() {
+								runTestList(c.testListError, "ThirdPhase", function() {
+									generateReport();
+								});
+							});
+						});
+					});
+				});
+			});
 		});
 	});
 }
 
-function getFailedTests(callback) {
-	fs.readFile("./TestResult.xml", function(err, data) {
+function getFailedTests(reportPath, callback) {
+	fs.readFile(reportPath, function(err, data) {
 		parseXml(data, function(err, result) {
 			fixtures = result["test-run"]['test-suite'][0]['test-suite'][0]['test-suite'][0]['test-suite'][0]['test-suite'];
 			var failedTests = [];
@@ -123,9 +122,8 @@ function getFailedTests(callback) {
 	});
 }
 
-function createTestListFile(obj, buildTestList, callback) {
-	var testList = buildTestList(obj);
-	fs.writeFile(c.testListPath, testList, function(err) {
+function createTestListFile(testList, fileName, callback) {
+	fs.writeFile(fileName, testList, function(err) {
 		if(err)
 			return console.log(err);
 		
@@ -133,11 +131,11 @@ function createTestListFile(obj, buildTestList, callback) {
 	});
 }
 
-function buildTestListFromArray(array) {
-	return array.join('\n');
+function buildTestListFromArray(array, callback) {
+	callback(array.join('\n'));
 }
 
-function buildTestListFromDB(obj) {
+function buildTestListFromDB(obj, callback) {
 	var testList = [];
 	obj.fixtures.forEach(fixture => {
 		fixture.tests.filter(test => {
@@ -148,31 +146,29 @@ function buildTestListFromDB(obj) {
 			});
 		});
 	});
-	return testList.join('\n');
+	callback(testList.join('\n'));
 }
 
-function runTestList(count) {
+function runTestList(testList, name, callback) {
 	testRunned = true;
 	testFailed = false;
+	
+	var reportPath = "testResultsXml/" + name + ".xml";
 	
 	new Executor({
 		program: util.getPath(c.nunitApp),
 		args: {
-			tests: "--testlist=" + c.testListPath,
+			tests: "--testlist=" + testList,
 			workers: "--workers=10",
 			assembly: util.getPath(c.testAssemblyPath),
-			output: "--result="+"TestResults/"+ count +".xml"
+			output: "--result="+reportPath
 		},
 		errorAction: function(err) {
 			testFailed = true;
-			console.log(err);
 		},
 		anywayAction: function() {
 			testRunned = false;
-			//generateReport();
-			if(count === 1) {
-				executeFailedTests(2);
-			}
+			callback(reportPath);
 		}
 	});
 }
@@ -181,11 +177,11 @@ function generateReport() {
 	new Executor({
 		program: util.getPath(c.HTMLReportApp),
 		args: {
-			inputFile: "TestResult.xml",
-			outputFile: "result.html"
+			inputFolder: "testResultsXml",
+			outputFolder: "views/testResults"
 		},
 		successAction: function() {
-			moveReportToView();
+			//moveReportToView();
 		},
 		errorAction: function(err) {
 			console.log(err);
