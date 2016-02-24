@@ -87,20 +87,37 @@ function updateConfig(configName, data, callback) {
 
 function executeTests(data) {
 	buildTestListFromDB(data, function(testList) {
-		createTestListFile(testList, c.testList, function() {
-			runTestList(c.testList, "FirstPhase", function(reportPath) {
-				getFailedTests(reportPath, function(tests) {
-					buildTestListFromArray(tests, function(testList) {
-						createTestListFile(testList, c.testListError, function() {
-							runTestList(c.testListError, "SecondPhase", function() {
-								runTestList(c.testListError, "ThirdPhase", function() {
-									generateReport();
-								});
-							});
-						});
-					});
+		// run selected tests
+		runTests(testList, c.testList, "FirstPhase", function(reportPath) {
+			if(c.rerunFailedTests) {
+				// rerun failed tests if setting enabled
+				rerunFailed(reportPath);
+			} else {
+				generateReport();
+			}
+		});
+	});
+}
+
+function rerunFailed(reportPath) {
+	// get test list from report
+	getFailedTests(reportPath, function(tests) {
+		buildTestListFromArray(tests, function(testList) {
+			// generate test-list file and rerun tests
+			runTests(testList, c.testListError, "SecondPhase", fullname() {
+				// rerun tests second time
+				runTestList(c.testListError, "ThirdPhase", function() {
+					generateReport();
 				});
 			});
+		});
+	});
+}
+
+function runTests(testList, testListPath, xmlReportName, callback) {
+	createTestListFile(testList, testListPath, function() {
+		runTestList(testListPath, xmlReportName, function(reportPath) {
+			callback(reportPath);
 		});
 	});
 }
