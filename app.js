@@ -42,5 +42,9 @@ app.get('/getFile', function(req, res) {
 });
 
 app.get('/lastresult', function(req, res) {
-	res.render("result");
+	res.redirect("/lastresult/Index");
+});
+
+app.get('/lastresult/:id', function(req, res) {
+	res.render("testResults/"+req.params.id);
 });

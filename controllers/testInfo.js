@@ -86,6 +86,9 @@ function updateConfig(configName, data, callback) {
 }
 
 function executeTests(data) {
+	testRunned = true;
+	testFailed = false;
+	
 	buildTestListFromDB(data, function(testList) {
 		// run selected tests
 		runTests(testList, c.testList, "FirstPhase", function(reportPath) {
@@ -104,7 +107,7 @@ function rerunFailed(reportPath) {
 	getFailedTests(reportPath, function(tests) {
 		buildTestListFromArray(tests, function(testList) {
 			// generate test-list file and rerun tests
-			runTests(testList, c.testListError, "SecondPhase", fullname() {
+			runTests(testList, c.testListError, "SecondPhase", function() {
 				// rerun tests second time
 				runTestList(c.testListError, "ThirdPhase", function() {
 					generateReport();
@@ -167,9 +170,6 @@ function buildTestListFromDB(obj, callback) {
 }
 
 function runTestList(testList, name, callback) {
-	testRunned = true;
-	testFailed = false;
-	
 	var reportPath = "testResultsXml/" + name + ".xml";
 	
 	new Executor({
@@ -184,13 +184,14 @@ function runTestList(testList, name, callback) {
 			testFailed = true;
 		},
 		anywayAction: function() {
-			testRunned = false;
 			callback(reportPath);
 		}
 	});
 }
 
 function generateReport() {
+	testRunned = false;
+	
 	new Executor({
 		program: util.getPath(c.HTMLReportApp),
 		args: {

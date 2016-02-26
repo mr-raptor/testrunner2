@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-run id="2" testcasecount="63" result="Failed" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="3" engine-version="3.0.5797.27553" clr-version="4.0.30319.42000" start-time="2016-02-26 09:43:35Z" end-time="2016-02-26 09:44:17Z" duration="41.438455">
+  <command-line><![CDATA["D:\Program Files (x86)\NUnit.org\nunit3-console.exe"  --testlist=testListError.txt --workers=10 "C:\cygwin64\home\Admin\adorama-autotestapplication\AutoTestApp.Adorama\bin\Debug\AutoTestApp.Adorama.dll" --result=testResultsXml/SecondPhase.xml ]]></command-line>
+  <filter>
+    <or>
+      <test>AutoTestApp.Adorama.PostDeploymentTest.Account("chrome").MyAccount_SignIn</test>
+      <test>AutoTestApp.Adorama.PostDeploymentTest.PlaceOrderAsRegisteredUser("chrome").RegularItem</test>
+    </or>
+  </filter>
+  <test-suite type="Assembly" id="0-1069" name="AutoTestApp.Adorama.dll" fullname="C:\cygwin64\home\Admin\adorama-autotestapplication\AutoTestApp.Adorama\bin\Debug\AutoTestApp.Adorama.dll" runstate="Runnable" testcasecount="63" result="Failed" site="Child" start-time="2016-02-26 09:43:35Z" end-time="2016-02-26 09:44:16Z" duration="41.378696" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="3">
+    <environment framework-version="3.0.5813.39031" clr-version="4.0.30319.42000" os-version="Microsoft Windows NT 6.1.7601 Service Pack 1" platform="Win32NT" cwd="C:\cygwin64\home\Admin\testrunner" machine-name="VOLOSHYN-PC" user="Admin" user-domain="VOLOSHYN-PC" culture="ru-RU" uiculture="ru-RU" os-architecture="x64" />
+    <settings>
+      <setting name="WorkDirectory" value="C:\cygwin64\home\Admin\testrunner" />
+      <setting name="NumberOfTestWorkers" value="10" />
+    </settings>
+    <properties>
+      <property name="ParallelScope" value="Children" />
+      <property name="_PID" value="18388" />
+      <property name="_APPDOMAIN" value="test-domain-" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="TestSuite" id="0-1070" name="AutoTestApp" fullname="AutoTestApp" runstate="Runnable" testcasecount="63" result="Failed" site="Child" start-time="2016-02-26 09:43:35Z" end-time="2016-02-26 09:44:16Z" duration="41.369700" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="3">
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="0-1071" name="Adorama" fullname="AutoTestApp.Adorama" runstate="Runnable" testcasecount="63" result="Failed" site="Child" start-time="2016-02-26 09:43:35Z" end-time="2016-02-26 09:44:16Z" duration="41.367773" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="3">
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="0-1072" name="PostDeploymentTest" fullname="AutoTestApp.Adorama.PostDeploymentTest" runstate="Runnable" testcasecount="59" result="Failed" site="Child" start-time="2016-02-26 09:43:35Z" end-time="2016-02-26 09:44:16Z" duration="41.367030" total="2" passed="0" failed="2" inconclusive="0" skipped="0" asserts="3">
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestFixture" id="0-1043" name="PlaceOrderAsRegisteredUser(&quot;chrome&quot;)" fullname="AutoTestApp.Adorama.PostDeploymentTest.PlaceOrderAsRegisteredUser(&quot;chrome&quot;)" classname="AutoTestApp.Adorama.PostDeploymentTest.PlaceOrderAsRegisteredUser" runstate="Runnable" testcasecount="9" result="Failed" site="Child" start-time="2016-02-26 09:43:35Z" end-time="2016-02-26 09:43:44Z" duration="8.607141" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+            <properties>
+              <property name="ParallelScope" value="Self" />
+            </properties>
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="0-1044" name="RegularItem" fullname="AutoTestApp.Adorama.PostDeploymentTest.PlaceOrderAsRegisteredUser(&quot;chrome&quot;).RegularItem" methodname="RegularItem" classname="AutoTestApp.Adorama.PostDeploymentTest.PlaceOrderAsRegisteredUser" runstate="Runnable" seed="429111967" result="Failed" label="Error" start-time="2016-02-26 09:43:43Z" end-time="2016-02-26 09:43:43Z" duration="0.324570" asserts="0">
+              <failure>
+                <message><![CDATA[Devart.Data.MySql.MySqlException : You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'cart_item_detail cid
+                    JOIN accounts a
+                    O' at line 2]]></message>
+                <stack-trace><![CDATA[   в Devart.Data.MySql.a7.b()
+   в Devart.Data.MySql.a7.i()
+   в Devart.Data.MySql.n.a(o[]& A_0, Int32& A_1)
+   в Devart.Data.MySql.n.a(Byte[] A_0, Int32 A_1, Boolean A_2)
+   в Devart.Data.MySql.av.e()
+   в Devart.Data.MySql.MySqlCommand.InternalExecute(CommandBehavior behavior, IDisposable stmt, Int32 startRecord, Int32 maxRecords)
+   в Devart.Common.DbCommandBase.ExecuteDbDataReader(CommandBehavior behavior, Boolean nonQuery)
+   в Devart.Common.DbCommandBase.ExecuteNonQuery()
+   в Dapper.SqlMapper.ExecuteCommand(IDbConnection cnn, CommandDefinition& command, Action`2 paramReader) в D:\Dev\dapper-dot-net\Dapper NET40\SqlMapper.cs:строка 3397
+   в Dapper.SqlMapper.ExecuteImpl(IDbConnection cnn, CommandDefinition& command) в D:\Dev\dapper-dot-net\Dapper NET40\SqlMapper.cs:строка 1346
+   в Dapper.SqlMapper.Execute(IDbConnection cnn, String sql, Object param, IDbTransaction transaction, Nullable`1 commandTimeout, Nullable`1 commandType) в D:\Dev\dapper-dot-net\Dapper NET40\SqlMapper.cs:строка 1221
+   в AutoTestApp.Common.Framework.DataBase.Adorama.CartItemDetailRepository.RemoveAllItems(String userEmail, String sid3) в C:\cygwin64\home\Admin\adorama-autotestapplication\AutoTestApp.Common\Framework\DataBase\Adorama\MySQL\CartItemDetailRepository.cs:строка 33
+   в AutoTestApp.Adorama.PostDeploymentTest.PlaceOrderAsRegisteredUser.RegularItem() в C:\cygwin64\home\Admin\adorama-autotestapplication\AutoTestApp.Adorama\PostDeploymentTest\PlaceOrderAsRegisteredUser.cs:строка 45]]></stack-trace>
+              </failure>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="0-1000" name="Account(&quot;chrome&quot;)" fullname="AutoTestApp.Adorama.PostDeploymentTest.Account(&quot;chrome&quot;)" classname="AutoTestApp.Adorama.PostDeploymentTest.Account" runstate="Runnable" testcasecount="22" result="Failed" site="Child" start-time="2016-02-26 09:43:35Z" end-time="2016-02-26 09:44:16Z" duration="41.363360" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="3">
+            <properties>
+              <property name="ParallelScope" value="Self" />
+            </properties>
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-case id="0-1001" name="MyAccount_SignIn" fullname="AutoTestApp.Adorama.PostDeploymentTest.Account(&quot;chrome&quot;).MyAccount_SignIn" methodname="MyAccount_SignIn" classname="AutoTestApp.Adorama.PostDeploymentTest.Account" runstate="Runnable" seed="798259755" result="Failed" label="Error" start-time="2016-02-26 09:43:43Z" end-time="2016-02-26 09:44:16Z" duration="32.803464" asserts="3">
+              <failure>
+                <message><![CDATA[TearDown : NUnit.Framework.AssertionException :   Expected: 1<br>  But was:  0<br><a href="D:\TestResults\Scr26.02.2016-11.43.45.png" target="_blank">Screenshot</a> 
+ <a href="D:\TestResults\textInfo26.02.2016-11.43.46.txt" target="_blank">More Details</a> <br>
+OrderID : 142564785679 <br>
+]]></message>
+                <stack-trace><![CDATA[--TearDown
+   в AutoTestApp.Common.Framework.Utils.AssertsAccumulator.Release() в C:\cygwin64\home\Admin\adorama-autotestapplication\AutoTestApp.Common\Framework\Utils\AssertsAccumulator.cs:строка 66
+   в AutoTestApp.Common.Framework.BaseTest.RunAfterTest() в C:\cygwin64\home\Admin\adorama-autotestapplication\AutoTestApp.Common\Framework\BaseTest.cs:строка 90]]></stack-trace>
+              </failure>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
