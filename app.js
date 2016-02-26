@@ -42,7 +42,7 @@ app.get('/getFile', function(req, res) {
 });
 
 app.get('/lastresult', function(req, res) {
-	res.redirect("/lastresult/Index");
+	res.redirect("/lastresult/FirstPhase");
 });
 
 app.get('/lastresult/:id', function(req, res) {

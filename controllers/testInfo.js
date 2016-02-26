@@ -89,6 +89,7 @@ function executeTests(data) {
 	testRunned = true;
 	testFailed = false;
 	
+	prepareTempFiles();
 	buildTestListFromDB(data, function(testList) {
 		// run selected tests
 		runTests(testList, c.testList, "FirstPhase", function(reportPath) {
@@ -106,13 +107,18 @@ function rerunFailed(reportPath) {
 	// get test list from report
 	getFailedTests(reportPath, function(tests) {
 		buildTestListFromArray(tests, function(testList) {
-			// generate test-list file and rerun tests
-			runTests(testList, c.testListError, "SecondPhase", function() {
-				// rerun tests second time
-				runTestList(c.testListError, "ThirdPhase", function() {
-					generateReport();
+			// if there is failed tests
+			if(tests.length !== 0) {
+				// generate test-list file and rerun tests				
+				runTests(testList, c.testListError, "SecondPhase", function() {
+					// rerun tests second time
+					runTestList(c.testListError, "ThirdPhase", function() {
+						generateReport();
+					});
 				});
-			});
+			} else {
+				generateReport();
+			}
 		});
 	});
 }
@@ -191,15 +197,24 @@ function runTestList(testList, name, callback) {
 
 function generateReport() {
 	testRunned = false;
-	
 	new Executor({
 		program: util.getPath(c.HTMLReportApp),
 		args: {
 			inputFolder: "testResultsXml",
 			outputFolder: "views/testResults"
 		},
-		successAction: function() {
-			//moveReportToView();
+		errorAction: function(err) {
+			console.log(err);
+		}
+	});	
+}
+
+function cleanFolder(path) {
+	new Executor({
+		program: "del",
+		args: {
+			path: path,
+			mode: "/Q"
 		},
 		errorAction: function(err) {
 			console.log(err);
@@ -207,30 +222,17 @@ function generateReport() {
 	});
 }
 
-function moveReportToView() {
-	new Executor({
-		program: "MOVE",
-		args: {
-			rewrite: "/Y",
-			fileLocation: "result.html",
-			moveTo: "./views/result.ejs"
-		},
-		successAction: function() {
-			fs.readFile("./views/result.ejs", 'utf8', function(err,data) {
-				if(err) {
-					return console.log(err);
-				}
-				var regex = new RegExp(c.reportFilesFolder.replace(/\\/g,'\\\\'), 'gi');
-				data = data.replace(regex, "/getFile?name=");
-				fs.writeFile("./views/result.ejs", data, function(err) {
-					if(err) {
-						return console.log(err);
-					}
-					console.log("Done!");
-				});
-			});
-		}
-	});
+function cleanReportFolder() {
+	cleanFolder("views\\testResults\\*");
+}
+
+function removeXmlReports() {
+	cleanFolder("testResultsXml\\*");
+}
+
+function prepareTempFiles() {
+	cleanReportFolder();
+	removeXmlReports();
 }
 
 module.exports = router;
