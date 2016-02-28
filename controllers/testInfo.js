@@ -9,13 +9,13 @@ var util = require('../util');
 var Executor = require('../Executor');
 var synchronize = require('../synchronizer').synchronize;
 
-var testRunned = false;
+var testRunning = false;
 var testFailed = false;
 
 
 
 router.get('/checkStatus', function(req, res) {
-	if(testRunned) {
+	if(testRunning) {
 		res.end('Running');
 	} else if (testFailed) {
 		res.end('Failed');
@@ -40,15 +40,13 @@ router.get('/:id', function(req, res) {
 router.get('/run/:id', function(req, res) {
 	var configs = db.get().collection('configs');
 	configs.findOne({name: req.params.id}, function(err, obj) {		
-		executeTests(obj.data);
-		res.end("Started");
+		executeTests(obj.data, res);
 	});
 });
 
 router.post('/run/:id', function(req, res) {
 	updateConfig(req.params.id, req.body, function(data) {
-		executeTests(data);
-		res.end("Started");
+		executeTests(data, res);
 	});
 });
 
@@ -85,41 +83,52 @@ function updateConfig(configName, data, callback) {
 	}
 }
 
-function executeTests(data) {
-	testRunned = true;
-	testFailed = false;
-	
-	prepareTempFiles();
-	buildTestListFromDB(data, function(testList) {
-		// run selected tests
-		runTests(testList, c.testList, "FirstPhase", function(reportPath) {
-			if(c.rerunFailedTests) {
-				// rerun failed tests if setting enabled
-				rerunFailed(reportPath);
-			} else {
-				generateReport();
-			}
+function executeTests(data, res) {
+	if(!testRunning) {
+		res.end("Started");
+		
+		testRunning = true;
+		testFailed = false;
+		
+		prepareTempFiles();
+		buildTestListFromDB(data, function(testList) {
+			// run selected tests
+			runTests(testList, c.testList, "FirstPhase", function(reportPath) {
+				if(c.rerunFailedTests) {
+					// rerun failed tests if setting enabled
+					rerunFailedTests(reportPath);
+				} else {
+					checkFailedTests(reportPath, function() {
+						testFailed = true;
+					});
+					generateReport();
+				}
+			});
 		});
-	});
+	} else {
+		res.end("Tests already are running");
+	}
 }
 
-function rerunFailed(reportPath) {
-	// get test list from report
-	getFailedTests(reportPath, function(tests) {
+function rerunFailedTests(sourceReport) {	
+	checkFailedTests(sourceReport, function(tests) {
 		buildTestListFromArray(tests, function(testList) {
-			// if there is failed tests
-			if(tests.length !== 0) {
-				// generate test-list file and rerun tests				
-				runTests(testList, c.testListError, "SecondPhase", function() {
-					// rerun tests second time
-					runTestList(c.testListError, "ThirdPhase", function() {
-						generateReport();
-					});
+			// generate test-list file and rerun tests				
+			runTests(testList, c.testListError, "SecondPhase", function(secondReportPath) {
+				// rerun same failed tests second time
+				runTestList(c.testListError, "ThirdPhase", function(thirdReportPath) {
+					// check results
+					checkFailedTests(secondReportPath, function() {
+						testFailed = true;
+					}, checkFailedTests(thirdReportPath, function() {
+						testFailed = true;
+					}));
+					generateReport();
 				});
-			} else {
-				generateReport();
-			}
+			});
 		});
+	}, function() {
+		generateReport();
 	});
 }
 
@@ -131,8 +140,8 @@ function runTests(testList, testListPath, xmlReportName, callback) {
 	});
 }
 
-function getFailedTests(reportPath, callback) {
-	fs.readFile(reportPath, function(err, data) {
+function getFailedTests(sourceReport, callback) {
+	fs.readFile(sourceReport, function(err, data) {
 		parseXml(data, function(err, result) {
 			fixtures = result["test-run"]['test-suite'][0]['test-suite'][0]['test-suite'][0]['test-suite'][0]['test-suite'];
 			var failedTests = [];
@@ -145,6 +154,18 @@ function getFailedTests(reportPath, callback) {
 			});
 			callback(failedTests);
 		});
+	});
+}
+
+function checkFailedTests(sourceReport, existAction, nonExistAction) {
+	// get test list from report
+	getFailedTests(sourceReport, function(failedTests) {
+		if(failedTests.length !== 0) {
+			existAction(failedTests);
+		} else {
+			if(nonExistAction)
+				nonExistAction();
+		}
 	});
 }
 
@@ -186,9 +207,6 @@ function runTestList(testList, name, callback) {
 			assembly: util.getPath(c.testAssemblyPath),
 			output: "--result="+reportPath
 		},
-		errorAction: function(err) {
-			testFailed = true;
-		},
 		anywayAction: function() {
 			callback(reportPath);
 		}
@@ -196,7 +214,7 @@ function runTestList(testList, name, callback) {
 }
 
 function generateReport() {
-	testRunned = false;
+	testRunning = false;
 	new Executor({
 		program: util.getPath(c.HTMLReportApp),
 		args: {
