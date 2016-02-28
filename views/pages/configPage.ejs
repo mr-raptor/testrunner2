@@ -42,6 +42,10 @@
 			$('#message').prepend(timeText() + " " + msg + '<br>');
 		}
 		
+		function updateTestCount() {
+			$('#testCount').html($("input.test:checked").length);
+		}
+		
 		$(document).ready(function() {
 			var testInfoName = $('input[name="testInfo"]').val();
 			
@@ -86,6 +90,7 @@
 				$.each($test.find('input.browser'), function(i,v) {
 					$(v).prop('disabled', !isTestActive);
 				});
+				updateTestCount();
 			});
 			
 			// Call function above for all tests for initialization
@@ -182,6 +187,8 @@
 			<div class="button">
 				<a id="save_tests" href="#" class="button-0">Save</a>
 			</div>
+			<span>Selected: <span id='testCount'></span></span>
+			<br><br>
 			<span id="message"></span>
 		</aside>
 		
