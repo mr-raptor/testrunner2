@@ -9,8 +9,8 @@ var timeText = require('./util').timeText;
 var app = express();
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
-app.use(bodyParser.urlencoded({extended:false}));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 app.use('/configs', require('./controllers/configs'));
 app.use('/testInfo', require('./controllers/testInfo'));

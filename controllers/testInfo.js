@@ -203,7 +203,7 @@ function runTestList(testList, name, callback) {
 		program: util.getPath(c.nunitApp),
 		args: {
 			tests: "--testlist=" + testList,
-			workers: "--workers=10",
+			workers: "--workers=" + c.nodesCount,
 			assembly: util.getPath(c.testAssemblyPath),
 			output: "--result="+reportPath
 		},
