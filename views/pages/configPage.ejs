@@ -46,6 +46,10 @@
 			$('#testCount').html($("input.test:checked").length);
 		}
 		
+		function updateTitle(msg) {
+			$('title').text("("+msg+") Test Runner");
+		}
+		
 		$(document).ready(function() {
 			var testInfoName = $('input[name="testInfo"]').val();
 			
@@ -127,6 +131,7 @@
 						} else {
 							updateMessage(msg);
 						}
+						updateTitle(msg);
 					}
 					lastMsg = msg;
 				});
