@@ -1,6 +1,8 @@
 var exec = require('child_process').exec;
 var colors = require('colors');
 
+var MAX_BUFFER_SIZE = 1024 * 1024 * 100; // 100MB
+
 function Executor(options) {
 	var self = this;
 	self.program = options.program;
@@ -20,7 +22,7 @@ function Executor(options) {
 		}
 		var command = self.program + ' ' + argsString;
 		console.log("Execution => " + command);
-		exec(command, function(err, data) {
+		exec(command, {maxBuffer: MAX_BUFFER_SIZE}, function(err,  data) {
 			if(err != null) {
 				console.log("ERROR! ".red + err);
 				self.errorAction(err);

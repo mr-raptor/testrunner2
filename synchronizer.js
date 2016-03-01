@@ -1,57 +1,86 @@
-var jsonfile = require('jsonfile');
+var parseXml = require('xml2js').parseString;
+var fs = require('fs');
 
 var c = require('./appConfig.json');
 var Executor = require('./Executor');
 var getPath = require('./util').getPath;
+var select = require('./selector');
 
 module.exports.synchronize = function(config, callback) {
-	parseDLL(syncFile, config, callback);
+	exploreDLL(function() {
+		parseTests(function(data) {
+			syncFile(config, data, callback);
+		});
+	});
 }
 
-function parseDLL(cb, config, callback) {
+function exploreDLL(callback) {
 	new Executor({
-		program: getPath(c.DLLParserApp),
+		program: getPath(c.nunitApp),
 		args: {
-			inputFile: getPath(c.testAssemblyPath),
-			outputFile: c.parsedDLLFile
+			input: getPath(c.testAssemblyPath),
+			output: "-explore="+c.exploredTests
 		},
 		successAction: function() {
-			cb(config, callback);
+			callback();
 		}
 	});
 }
 
-function syncFile(config, callback) {
-	jsonfile.readFile(c.parsedDLLFile, function(err, dll) {
-		if(err != null) {
-			console.log(err);
-		} else {
-			// if config is new
-			if(config.data === undefined) {
-				config.data = {};
-			}
-			if(config.data.fixtures === undefined) {
-				config.data.fixtures = [];
-			}
+function parseTests(callback) {
+	fs.readFile(c.exploredTests, function(err, data) {
+		parseXml(data, function(err, result) {
+			var testFixtures = [];
 			
-			config.data = synchronizeTestInfo(config.data, dll);
-			callback(config);
-		}
-	});	
+			select(result["test-run"], testFixtures, "test-suite", function(obj) {
+				// if object has "test-case" collection
+				return obj["test-case"]; 
+			});
+			
+			var data = {
+				fixtures: testFixtures.map(fixture => {
+					return {
+						name: fixture.$.name,
+						tests: fixture['test-case'].map(test => {
+							return {
+								name: test.$.name,
+								fullname: test.$.fullname
+							}
+						})
+					}
+				})
+			};
+			
+			callback(data)
+		});
+	});
 }
 
-function synchronizeTestInfo(testInfo, dll) {	
-	// Delete all fixtures in testInfo what there isn't in parsedDLL						
-	testInfo.fixtures = testInfo.fixtures.filter(fixture => searchFixture(fixture.name, dll.fixtures));
+function syncFile(config, parsedData, callback) {
+	// if config is new
+	if(config.data === undefined) {
+		config.data = {};
+	}
+	if(config.data.fixtures === undefined) {
+		config.data.fixtures = [];
+	}
+	
+	config.data = synchronizeTestInfo(config.data, parsedData);
+	callback(config);
+}
 
-	// Delete all tests in fixture in testInfo what there isn't in fixture in parsedDLL
+function synchronizeTestInfo(testInfo, parsedData) {	
+	// Delete all fixtures in testInfo what there isn't in parsedData						
+	testInfo.fixtures = testInfo.fixtures.filter(fixture => searchFixture(fixture.name, parsedData.fixtures));
+
+	// Delete all tests in fixture in testInfo what there isn't in fixture in parsedData
 	testInfo.fixtures.forEach(fixture => {
-		var newFixture = searchFixture(fixture.name, dll.fixtures);							
+		var newFixture = searchFixture(fixture.name, parsedData.fixtures);							
 		fixture.tests = fixture.tests.filter(test => searchTest(test, newFixture.tests));
 	});
 
-	// Add all new fixtures and tests from parsedDLL
-	dll.fixtures.forEach(fixture => {
+	// Add all new fixtures and tests from parsedData
+	parsedData.fixtures.forEach(fixture => {
 		var oldFixture = searchFixture(fixture.name, testInfo.fixtures);
 
 		// If fixture is new, add whole fixture with tests							
@@ -59,7 +88,7 @@ function synchronizeTestInfo(testInfo, dll) {
 			testInfo.fixtures.push(fixture);
 		} else {
 			// If fixture exists, add new tests
-			var newTests = fixture.tests.filter(test => !searchTest(test, oldFixture.tests));								
+			var newTests = fixture.tests.filter(test => !searchTest(test, oldFixture.tests));			
 			oldFixture.tests = oldFixture.tests.concat(newTests);
 		}
 		
@@ -74,7 +103,7 @@ function synchronizeTestInfo(testInfo, dll) {
 function searchTest(test, source) {
 	return source.find(currentTest => {
 		return currentTest.name === test.name &&
-			   currentTest.assembly === test.assembly;
+			   currentTest.fullname === test.fullname;
 	});
 }
 

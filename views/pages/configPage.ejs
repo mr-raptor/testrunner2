@@ -15,7 +15,7 @@
 		function getTest($test) {
 			var test = {};
 			test.name = $test.attr("name");
-			test.assembly = $test.attr("assembly");
+			test.fullname = $test.attr("fullname");
 			test.active = $test.find("input.test").prop("checked");
 			test.browsers = [];
 			$.each($test.find("input.browser:checked"), function(i,v) {
@@ -162,7 +162,7 @@
 					<ul>		
 					<% fixture.tests.forEach(test => { %>
 						<li>
-							<div class="test" name="<%= test.name %>" assembly="<%=test.assembly%>"> <!-- need to refactor this -->
+							<div class="test" name="<%= test.name %>" fullname="<%=test.fullname%>"> <!-- need to refactor this -->
 								<input class="test" type="checkbox" <%= test.active ? "checked" : "" %> />
 								<%= test.name %>
 								<div class="browsers">

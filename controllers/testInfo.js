@@ -8,10 +8,10 @@ var c = require('../appConfig');
 var util = require('../util');
 var Executor = require('../Executor');
 var synchronize = require('../synchronizer').synchronize;
+var select = require('../selector');
 
 var testRunning = false;
 var testFailed = false;
-
 
 
 router.get('/checkStatus', function(req, res) {
@@ -143,7 +143,10 @@ function runTests(testList, testListPath, xmlReportName, callback) {
 function getFailedTests(sourceReport, callback) {
 	fs.readFile(sourceReport, function(err, data) {
 		parseXml(data, function(err, result) {
-			fixtures = result["test-run"]['test-suite'][0]['test-suite'][0]['test-suite'][0]['test-suite'][0]['test-suite'];
+			var fixtures = [];
+			select(result["test-run"], fixtures, "test-suite", function(obj) {
+				return obj["test-case"];
+			});
 			var failedTests = [];
 			fixtures.forEach(fixture => {
 				failedTests = fixture['test-case'].filter(test => {
@@ -189,7 +192,7 @@ function buildTestListFromDB(obj, callback) {
 			return test.active === true;
 		}).forEach(test => {
 			test.browsers.forEach(browser => {
-				testList.push(test.assembly + "(\"" + browser + "\")." + test.name);
+				testList.push(test.fullname); //fix browsers!!
 			});
 		});
 	});
