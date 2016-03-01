@@ -3,3 +3,5 @@ data/
 appConfig.json
 parsed.json
 TestResult.xml
+views/testResults/
+testResultsXml/
