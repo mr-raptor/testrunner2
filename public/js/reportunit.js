@@ -3,7 +3,7 @@ var menuWidth = 260;
 function showDynamicModal(heading, content) {
     var m = $('#dynamicModal');
     m.find('h4').text(heading);
-    m.find('pre').text(content);
+    m.find('pre').html(content);
     m.openModal({ in_duration: 200 });
 }
 
@@ -11,21 +11,21 @@ $('.details-container').click(function(evt) {
     var t = $(evt.target);
     
     if (t.is('.showStatusMessage') || t.is('i')) {
-        if (t.is('i')) {
+        if (t.is('i')) {	
             t = t.parent();
         }
-        
-        showDynamicModal(t.closest('tr').find('.name').text() + ' StatusMessage', t.next().text());
+		
+        showDynamicModal(t.closest('tr').find('.name').text() + ' StatusMessage', t.next().html());
     }
     
     if (t.is('.showDescription')) {
-        showDynamicModal(t.text() + ' Description', t.next().text());
+        showDynamicModal(t.text() + ' Description', t.next().html());
     }
 });
 
 $('i.mdi-alert-warning').click(function() {
-	console.log($(this).parent().find('.statusMsg'));
-	showDynamicModal($(this).closest('tr').find('.name').text() + ' Status Message', $(this).closest('td').find('.statusMsg').text());
+	console.log('lol');
+	showDynamicModal($(this).closest('tr').find('.name').text() + ' Status Message', $(this).closest('td').find('.statusMsg').html());
 });
 
 /* toggle dashboard on 'Enable Dashboard' click */

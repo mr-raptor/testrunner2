@@ -14,6 +14,11 @@ var testRunning = false;
 var testFailed = false;
 
 
+router.get('/report', function(req, res) {
+	generateReport();
+	res.end();
+});
+
 router.get('/checkStatus', function(req, res) {
 	if(testRunning) {
 		res.end('Running');
@@ -55,6 +60,7 @@ router.post('/save/:id', function(req, res) {
 		res.end('Saved');
 	});
 });
+
 
 function updateConfig(configName, data, callback) {
 	var configs = db.get().collection('configs');
@@ -222,12 +228,39 @@ function generateReport() {
 		program: util.getPath(c.HTMLReportApp),
 		args: {
 			inputFolder: "testResultsXml",
-			outputFolder: "views/testResults"
+			outputFolder: c.reportFolder
 		},
 		errorAction: function(err) {
 			console.log(err);
+		},
+		successAction: function() {
+			console.dir(fs.readdir(c.reportFolder));
+			fs.readdir(c.reportFolder, function(err, files) {
+				if (err)
+					return console.log(err);
+				
+				files.forEach(fileName => {
+					replaceTextInFile(c.reportFolder + '/' + fileName, c.reportFilesFolder, "/getFile?name=");
+				});
+			});
 		}
 	});	
+}
+
+function replaceTextInFile(filePath, fromPattern, toPattern) {
+	fs.readFile(filePath, 'utf8', function(err,data) {
+		if(err) {
+			return console.log(err);
+		}
+		var regex = new RegExp(fromPattern.replace(/\\/g,'\\\\'), 'gi');
+		data = data.replace(regex, toPattern);
+		fs.writeFile(filePath, data, function(err) {
+			if(err) {
+				return console.log(err);
+			}
+			console.log("Replaced "+filePath);
+		});
+	});
 }
 
 function cleanFolder(path) {
