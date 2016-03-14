@@ -14,6 +14,7 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 app.use('/configs', require('./controllers/configs'));
 app.use('/testInfo', require('./controllers/testInfo'));
+app.use('/results', require('./controllers/results'));
 
 var oldLog = console.log;
 console.log = function(message) {
@@ -39,12 +40,4 @@ app.get('/', function(req, res) {
 
 app.get('/getFile', function(req, res) {
 	res.sendFile(path.join(c.reportFilesFolder, req.query["name"]));
-});
-
-app.get('/lastresult', function(req, res) {
-	res.redirect("/lastresult/FirstPhase");
-});
-
-app.get('/lastresult/:id', function(req, res) {
-	res.render("testResults/"+req.params.id);
 });

@@ -90,57 +90,57 @@ function updateConfig(configName, data, callback) {
 }
 
 function executeTests(data, res) {
-	if(!testRunning) {
-		res.end("Started");
-		
-		testRunning = true;
-		testFailed = false;
-		
-		prepareTempFiles();
+	if(testRunning)
+		return res.end("Tests already are running");
+	
+	res.end("Started");
+	
+	testRunning = true;
+	testFailed = false;
+	
+	prepareReportFolders(function(reportFolder) {
 		buildTestListFromDB(data, function(testList) {
 			// run selected tests
-			runTests(testList, c.testList, "FirstPhase", function(reportPath) {
+			runTests(testList, c.testList, "FirstPhase", reportFolder, function(reportPath) {
 				if(c.rerunFailedTests) {
 					// rerun failed tests if setting enabled
-					rerunFailedTests(reportPath);
+					rerunFailedTests(reportFolder, reportPath);
 				} else {
 					checkFailedTests(reportPath, function() {
 						testFailed = true;
 					});
-					generateReport();
+					generateReport(reportFolder);
 				}
 			});
 		});
-	} else {
-		res.end("Tests already are running");
-	}
+	});
 }
 
-function rerunFailedTests(sourceReport) {	
+function rerunFailedTests(reportFolder, sourceReport) {	
 	checkFailedTests(sourceReport, function(tests) {
 		buildTestListFromArray(tests, function(testList) {
 			// generate test-list file and rerun tests				
-			runTests(testList, c.testListError, "SecondPhase", function(secondReportPath) {
+			runTests(testList, c.testListError, "SecondPhase", reportFolder, function(secondReportPath) {
 				// rerun same failed tests second time
-				runTestList(c.testListError, "ThirdPhase", function(thirdReportPath) {
+				runTestList(c.testListError, "ThirdPhase", reportFolder, function(thirdReportPath) {
 					// check results
 					checkFailedTests(secondReportPath, function() {
 						testFailed = true;
 					}, checkFailedTests(thirdReportPath, function() {
 						testFailed = true;
 					}));
-					generateReport();
+					generateReport(reportFolder);
 				});
 			});
 		});
 	}, function() {
-		generateReport();
+		generateReport(reportFolder);
 	});
 }
 
-function runTests(testList, testListPath, xmlReportName, callback) {
+function runTests(testList, testListPath, xmlReportName, reportFolder, callback) {
 	createTestListFile(testList, testListPath, function() {
-		runTestList(testListPath, xmlReportName, function(reportPath) {
+		runTestList(testListPath, xmlReportName, reportFolder, function(reportPath) {
 			callback(reportPath);
 		});
 	});
@@ -205,8 +205,8 @@ function buildTestListFromDB(obj, callback) {
 	callback(testList.join('\n'));
 }
 
-function runTestList(testList, name, callback) {
-	var reportPath = "testResultsXml/" + name + ".xml";
+function runTestList(testList, name, reportFolder, callback) {
+	var reportPath = reportFolder + "/xml/" + name + ".xml";
 	
 	new Executor({
 		program: util.getPath(c.nunitApp),
@@ -222,25 +222,25 @@ function runTestList(testList, name, callback) {
 	});
 }
 
-function generateReport() {
+function generateReport(reportFolder) {
 	testRunning = false;
 	new Executor({
 		program: util.getPath(c.HTMLReportApp),
 		args: {
-			inputFolder: "testResultsXml",
-			outputFolder: c.reportFolder
+			inputFolder: reportFolder+"/xml",
+			outputFolder: reportFolder+"/html"
 		},
 		errorAction: function(err) {
 			console.log(err);
 		},
 		successAction: function() {
-			console.dir(fs.readdir(c.reportFolder));
-			fs.readdir(c.reportFolder, function(err, files) {
+			console.dir(fs.readdir(reportFolder+"/html"));
+			fs.readdir(reportFolder+"/html", function(err, files) {
 				if (err)
 					return console.log(err);
 				
 				files.forEach(fileName => {
-					replaceTextInFile(c.reportFolder + '/' + fileName, c.reportFilesFolder, "/getFile?name=");
+					replaceTextInFile(reportFolder+"/html" + '/' + fileName, c.reportFilesFolder, "/getFile?name=");
 				});
 			});
 		}
@@ -263,6 +263,23 @@ function replaceTextInFile(filePath, fromPattern, toPattern) {
 	});
 }
 
+function prepareReportFolders(callback) {
+	var now = new Date();
+	var newFolderName = "Result-"+(now.toDateString()+" "+now.toTimeString().substr(0,8)).replace(/[\s:]/g, "-");
+	var newFolderPath = c.reportFolder+"/"+newFolderName;
+	createDirectory(newFolderPath);
+	createDirectory(newFolderPath+"/xml");
+	createDirectory(newFolderPath+"/html");
+	
+	var results = db.get().collection("results");
+	results.insert({
+		folder: newFolderName,
+		time: now
+	});
+	
+	callback(newFolderPath);
+}
+
 function cleanFolder(path) {
 	new Executor({
 		program: "del",
@@ -276,17 +293,10 @@ function cleanFolder(path) {
 	});
 }
 
-function cleanReportFolder() {
-	cleanFolder("views\\testResults\\*");
-}
-
-function removeXmlReports() {
-	cleanFolder("testResultsXml\\*");
-}
-
-function prepareTempFiles() {
-	cleanReportFolder();
-	removeXmlReports();
+function createDirectory(name) {
+	if (!fs.existsSync(name)){
+		fs.mkdirSync(name);
+	}
 }
 
 module.exports = router;

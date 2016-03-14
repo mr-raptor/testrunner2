@@ -127,7 +127,7 @@
 				}).done(function(msg) {
 					if(msg !== lastMsg) {
 						if(msg === "Success" || msg === "Failed") {
-							updateMessage("<a href='/lastresult'>Results</a>");
+							updateMessage("<a href='/results'>Results</a>");
 						} else {
 							updateMessage(msg);
 						}
