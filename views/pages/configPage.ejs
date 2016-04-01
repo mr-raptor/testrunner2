@@ -112,6 +112,18 @@
 				$(v).prop('checked', all_tests_checked);
 			});
 			
+			$.each($('.fixture'), function(i,v) {
+				var tests = $(this).find('input.test');
+				var any_test_checked = false;
+				var i=0;
+				while(!any_test_checked && i<tests.length) {
+					any_test_checked = $(tests[i++]).prop('checked');
+				}
+				if(any_test_checked) {
+					$(this).css('background-color', 'rgba(0,0,255,0.04)');
+				}
+			});
+			
 			// Expanding of tests by fixture
 			$(".toggle_data").hide();
 			$(".toggle").click(function(){
