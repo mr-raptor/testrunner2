@@ -2,6 +2,8 @@
 <head>
     <% include ../partials/head %>
 	<script>
+		var settings = <%- JSON.stringify(settings) %>;
+		var substituteSettingsEnabled = <%- substituteSettingsEnabled %>
 		function getFixture($fixture) {
 			var fixture = {};
 			fixture.name = $fixture.attr("name");
@@ -26,6 +28,9 @@
 		
 		function getTestData() {
 			var data = {};
+			if(substituteSettingsEnabled) {
+				data.settings = settings;
+			}
 			data.fixtures = [];
 			var $fixtures = $('.fixture');
 			$.each($fixtures, function(i,v) {
@@ -50,8 +55,27 @@
 			$('title').text("("+msg+") Test Runner");
 		}
 		
+		function addToggleElement(buttonClass, contextSectionClass, toggleSectionClass) {
+			$(toggleSectionClass).hide();
+			$(buttonClass).click(function() {
+				$(this).toggleClass("active").closest(contextSectionClass).find(toggleSectionClass).slideToggle("fast");
+			});
+		}
+		
+		function renderSettings() {
+			$(".settings .items").empty();
+			for(var key in settings) {
+				$(".settings .items")
+					.append("<span class='setting_item'>"+key+": <input class='setting_value' name='"+key+"' value='"+settings[key]+"' /><input type='button' class='delete_setting' value='Delete'></span><br />");
+			}
+		}
+		
 		$(document).ready(function() {
 			var testInfoName = $('input[name="testInfo"]').val();
+			
+			if(substituteSettingsEnabled) {
+				renderSettings();
+			}
 			
 			// Save tests configuration and run tests
 			$('#run_tests').click(function() {
@@ -112,6 +136,7 @@
 				$(v).prop('checked', all_tests_checked);
 			});
 			
+			// Highlight fixtures with selected tests
 			$.each($('.fixture'), function(i,v) {
 				var tests = $(this).find('input.test');
 				var any_test_checked = false;
@@ -124,14 +149,35 @@
 				}
 			});
 			
-			// Expanding of tests by fixture
-			$(".toggle_data").hide();
-			$(".toggle").click(function(){
-				$(this).toggleClass("active").closest('.fixture').find(".toggle_data").slideToggle("fast");
+			// Expanding of tests by fixture			
+			addToggleElement(".toggle", ".fixture", ".toggle_data");
+			// Expanding of settings section
+			addToggleElement(".settings_button", ".settings", ".settings_toggle");
+			
+			$(".add_setting").click(function() {
+				var new_setting_name = $(".new_setting.name").val();
+				if(!new_setting_name || new_setting_name === "")
+					return updateMessage("Error! Setting Name can't be empty!");
+				if(settings[new_setting_name] !== undefined)
+					return updateMessage("Error! Item with such name already exists!");
+					
+				settings[new_setting_name] = $(".new_setting.value").val();
+				$(".new_setting").val("");
+				renderSettings();
+			});
+			
+			$(".settings").on('change', '.setting_value', function() {
+				settings[$(this).attr("name")] = $(this).val();
+				renderSettings();
+			});			
+			
+			$(".settings").on('click', '.delete_setting', function() {
+				var name = $(this).closest('.setting_item').find('.setting_value').attr("name");
+				delete settings[name];
+				renderSettings();
 			});
 			
 			var lastMsg;
-			
 			setInterval(function() {
 				$.ajax({
 					method: "GET",
@@ -161,6 +207,24 @@
 		<div class="container">
 			<main class="content">
 			<input type="hidden" name="testInfo" value="<%=testInfoName%>" />
+			<% if(substituteSettingsEnabled) { %>
+			<div class="settings">
+				<h3>
+					Current config: 
+					<%=testInfoName%><input class="settings_button" type="image" src="/img/icon.png" />
+				</h3>
+				<div class="settings_toggle">
+					<div class="items"></div>
+					<br>
+					<span>
+						<input type="text" class="new_setting name" />
+						<input type="text" class="new_setting value" />
+						<input type="button" class="add_setting" value="Add New" />
+					</span>
+				</div>
+			</div>
+			<% } %>
+			<br>
 			<div class="browsers">
 			<% browsers.forEach(browser => { %>
 				<span class="browser"><%=browser%></span>

@@ -11,5 +11,6 @@
 	"testList": "testList.txt",
 	"testListError": "testListError.txt",
 	"rerunFailedTests": true,
-	"nodesCount": 20
+	"nodesCount": 20,
+	"substituteSettingsEnabled": true
 }

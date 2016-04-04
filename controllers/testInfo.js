@@ -1,7 +1,7 @@
 var express = require('express'),
 	router = express.Router();
 var fs = require('fs');
-var parseXml = require('xml2js').parseString;
+var xml2js = require('xml2js');
 
 var db = require('../db');
 var c = require('../appConfig');
@@ -36,6 +36,8 @@ router.get('/:id', function(req, res) {
 			res.render('pages/configPage', {
 				testInfoName: obj.name,
 				fixtures: obj.data.fixtures,
+				substituteSettingsEnabled: c.substituteSettingsEnabled,
+				settings: obj.data.settings || {},
 				browsers: c.browsers
 			});
 		});
@@ -98,19 +100,21 @@ function executeTests(data, res) {
 	testRunning = true;
 	testFailed = false;
 	
-	prepareReportFolders(function(reportFolder) {
-		buildTestListFromDB(data, function(testList) {
-			// run selected tests
-			runTests(testList, c.testList, "FirstPhase", reportFolder, function(reportPath) {
-				if(c.rerunFailedTests) {
-					// rerun failed tests if setting enabled
-					rerunFailedTests(reportFolder, reportPath);
-				} else {
-					checkFailedTests(reportPath, function() {
-						testFailed = true;
-					});
-					generateReport(reportFolder);
-				}
+	substituteSettings(data, function() {
+		prepareReportFolders(function(reportFolder) {
+			buildTestListFromDB(data, function(testList) {
+				// run selected tests
+				runTests(testList, c.testList, "FirstPhase", reportFolder, function(reportPath) {
+					if(c.rerunFailedTests) {
+						// rerun failed tests if setting enabled
+						rerunFailedTests(reportFolder, reportPath);
+					} else {
+						checkFailedTests(reportPath, function() {
+							testFailed = true;
+						});
+						generateReport(reportFolder);
+					}
+				});
 			});
 		});
 	});
@@ -148,7 +152,7 @@ function runTests(testList, testListPath, xmlReportName, reportFolder, callback)
 
 function getFailedTests(sourceReport, callback) {
 	fs.readFile(sourceReport, function(err, data) {
-		parseXml(data, function(err, result) {
+		xml2js.parseString(data, function(err, result) {
 			var fixtures = [];
 			select(result["test-run"], fixtures, "test-suite", function(obj) {
 				return obj["test-case"];
@@ -261,6 +265,37 @@ function replaceTextInFile(filePath, fromPattern, toPattern) {
 			console.log("Replaced "+filePath);
 		});
 	});
+}
+
+function substituteSettings(data, callback) {
+	if(c.substituteSettingsEnabled && data.settings && Object.keys(data.settings).length > 0) {
+		var dllConfigFilePath = c.testAssemblyPath+'.config';
+		fs.readFile(dllConfigFilePath, function(err, xmlData) {
+			xml2js.parseString(xmlData, function(err, xml) {
+				var config = xml['configuration']['appSettings'][0]['add'];
+				var items = data.settings;
+
+				for(var key in items) {
+					var obj = config.find(config_item => {
+						return key === config_item.$.key;
+					});
+					if(obj) {
+						obj.$.value = items[key];
+					}
+				}
+				
+				var xmlBuilder = new xml2js.Builder();
+				fs.writeFile(dllConfigFilePath, xmlBuilder.buildObject(xml), function(err) {
+					if(err) {
+						return console.log(err);
+					}
+					callback();
+				});
+			});
+		});
+	} else {
+		callback();
+	}
 }
 
 function prepareReportFolders(callback) {

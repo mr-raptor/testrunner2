@@ -97,3 +97,20 @@ div.browsers:after {
 .toggle {
 	cursor: pointer;
 }
+
+.settings_button {
+	width: 20;
+	vertical-align: middle;
+}
+
+.settings_button:hover {
+	opacity: 0.5;
+}
+
+.delete_setting {
+	display: none;
+}
+
+.setting_item:hover .delete_setting {
+	display: inline;
+}
