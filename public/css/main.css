@@ -41,7 +41,7 @@ header {
 .button-0 {
 	position: relative;
 	padding: 10px 40px;
-	margin: 50px 30% 10px 0px;
+	margin: 20px 30% 10px 0px;
 	float: right;
 	border-radius: 10px;
 	font-family: 'Helvetica', cursive;
@@ -54,6 +54,7 @@ header {
 	/* Animation */
 	transition: all 0.1s;
 	-webkit-transition: all 0.1s;
+	min-width: 90px;
 }
 .button-0:hover, .button-0:focus {
 	text-decoration: none;

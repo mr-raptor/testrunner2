@@ -177,6 +177,20 @@
 				renderSettings();
 			});
 			
+			$("#save_tests_as").click(function() {
+				var new_config = prompt("Type new config name");
+				if(!new_config || new_config === "")
+					return updateMessage("Config name can't be empty");
+				$.ajax({
+					method: "POST",
+					url: "/testInfo/save/" + new_config,
+					contentType: "application/json",
+					data: JSON.stringify(getTestData())
+				}).done(function(msg) {
+					updateMessage(msg);
+				});
+			});
+			
 			var lastMsg;
 			setInterval(function() {
 				$.ajax({
@@ -267,6 +281,9 @@
 			</div>
 			<div class="button">
 				<a id="save_tests" href="#" class="button-0">Save</a>
+			</div>
+			<div class="button">
+				<a id="save_tests_as" href="#" class="button-0">Save ...</a>
 			</div>
 			<span>Selected: <span id='testCount'></span></span>
 			<br><br>
