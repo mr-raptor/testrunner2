@@ -31,16 +31,20 @@ router.get('/checkStatus', function(req, res) {
 
 router.get('/:id', function(req, res) {
 	var configs = db.get().collection('configs');
-	configs.findOne({name: req.params.id}, function(err, obj) {		
-		synchronize(obj, function(obj) {
-			res.render('pages/configPage', {
-				testInfoName: obj.name,
-				fixtures: obj.data.fixtures,
-				substituteSettingsEnabled: c.substituteSettingsEnabled,
-				settings: obj.data.settings || {},
-				browsers: c.browsers
+	configs.findOne({name: req.params.id}, function(err, obj) {	
+		if(obj != null) {
+			synchronize(obj, function(obj) {
+				res.render('pages/configPage', {
+					testInfoName: obj.name,
+					fixtures: obj.data.fixtures,
+					substituteSettingsEnabled: c.substituteSettingsEnabled,
+					settings: obj.data.settings || {},
+					browsers: c.browsers
+				});
 			});
-		});
+		} else {
+			res.redirect('/');
+		}
 	});
 });
 
