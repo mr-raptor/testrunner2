@@ -131,12 +131,17 @@ function rerunFailedTests(reportFolder, sourceReport) {
 			runTests(testList, c.testListError, "SecondPhase", reportFolder, function(secondReportPath) {
 				// rerun same failed tests second time
 				runTestList(c.testListError, "ThirdPhase", reportFolder, function(thirdReportPath) {
-					// check results
-					checkFailedTests(secondReportPath, function() {
-						testFailed = true;
-					}, checkFailedTests(thirdReportPath, function() {
-						testFailed = true;
-					}));
+					var reports = [sourceReport, secondReportPath, thirdReportPath];
+					
+					// check results					
+					getFailedTestsWithTimeouts(tests, reports, function(testData) {
+						tests.forEach(currTest => {
+							if(isFailedTest(testData, currTest, reports)) {
+								testFailed = true;
+							}
+						});
+					});
+					
 					generateReport(reportFolder);
 				});
 			});
@@ -146,6 +151,21 @@ function rerunFailedTests(reportFolder, sourceReport) {
 	});
 }
 
+function isFailedTest(testData, testName, reports) {
+	var testResults = [];
+	reports.forEach(report => {
+		testResults = testData[report].filter(test => {
+			return test.$.fullname === testName;
+		}).concat(testResults);
+	});
+	return !isFailedByTimeout(testResults[2]) && testResults.some(item => item.failure);
+}
+
+function isFailedByTimeout(testResult) {
+	return testResult.failure && Boolean(String(testResult.failure[0].message).match(/(OpenQA.Selenium.WebDriverTimeoutException|OpenQA.Selenium.ElementNotVisibleException)/i));
+}
+
+
 function runTests(testList, testListPath, xmlReportName, reportFolder, callback) {
 	createTestListFile(testList, testListPath, function() {
 		runTestList(testListPath, xmlReportName, reportFolder, function(reportPath) {
@@ -154,36 +174,77 @@ function runTests(testList, testListPath, xmlReportName, reportFolder, callback)
 	});
 }
 
-function getFailedTests(sourceReport, callback) {
-	fs.readFile(sourceReport, function(err, data) {
-		xml2js.parseString(data, function(err, result) {
-			var fixtures = [];
-			select(result["test-run"], fixtures, "test-suite", function(obj) {
-				return obj["test-case"];
-			});
-			var failedTests = [];
-			fixtures.forEach(fixture => {
-				failedTests = fixture['test-case'].filter(test => {
-					return test.$.result === 'Failed';
-				}).map(test => {
-					return test.$.fullname;
-				}).concat(failedTests);
-			});
-			callback(failedTests);
+function checkFailedTests(sourceReport, existAction, nonExistAction) {
+	// get test list from report
+	from(sourceReport, function(xmlData) {
+		whereAllTestsAreFailed(xmlData, function(failedTests) {
+			if(failedTests.length !== 0) {
+				existAction(failedTests);
+			} else {
+				if(nonExistAction)
+					nonExistAction();
+			}
 		});
 	});
 }
 
-function checkFailedTests(sourceReport, existAction, nonExistAction) {
-	// get test list from report
-	getFailedTests(sourceReport, function(failedTests) {
-		if(failedTests.length !== 0) {
-			existAction(failedTests);
-		} else {
-			if(nonExistAction)
-				nonExistAction();
-		}
+function getFailedTestsWithTimeouts(failedTestList, reportPaths, callback) {
+	var testData = [];
+	var i = 0;
+	reportPaths.forEach(report => {
+		from(report, function(tests) {
+			i++;			
+			failedTestList.forEach((testName) => {
+				getTestByName(tests, testName, function(testInfo) {
+					if (!testData[report])
+						testData[report] = [];
+					testData[report].push(testInfo);			
+				});
+			});
+			if (i === reportPaths.length)
+				callback(testData);				
+		});
 	});
+}
+
+function from(sourceReport, callback) {
+	fs.readFile(sourceReport, function(err, data) {
+		xml2js.parseString(data, function(err, xml) {
+			if(err)
+				return console.log(err);
+			callback(xml);
+		});
+	});
+}
+
+function getTestByName(source, testName, callback) {
+	var fixtures = [];
+	select(source["test-run"], fixtures, "test-suite", function(obj) {
+		return obj["test-case"];
+	});
+	var results = [];
+	fixtures.forEach(fixture => {
+		results = fixture['test-case'].filter(test => {
+			return test.$.fullname === testName;
+		}).concat(results);
+	});
+	callback(results[0]);
+}
+	
+function whereAllTestsAreFailed(source, callback) {
+	var fixtures = [];
+	select(source["test-run"], fixtures, "test-suite", function(obj) {
+		return obj["test-case"];
+	});
+	var failedTests = [];
+	fixtures.forEach(fixture => {
+		failedTests = fixture['test-case'].filter(test => {
+			return test.$.result === 'Failed';
+		}).map(test => {
+			return test.$.fullname;
+		}).concat(failedTests);
+	});
+	callback(failedTests);
 }
 
 function createTestListFile(testList, fileName, callback) {
