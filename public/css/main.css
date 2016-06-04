@@ -70,11 +70,11 @@ li {
 	margin: 10px;
 }
 li:hover {
-	background-color: rgba(100,100,100,0.05);
+	background-color: rgba(0,100,250,0.02);
 }
 
 div.fixture:hover {
-	background-color: rgba(100,100,100,0.05);
+	background-color: rgba(0,100,250,0.01);
 }
 div.browsers {
 	min-width: 400px;
@@ -114,4 +114,8 @@ div.browsers:after {
 
 .setting_item:hover .delete_setting {
 	display: inline;
+}
+
+ul {
+    list-style-type: none;
 }

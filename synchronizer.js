@@ -4,7 +4,7 @@ var fs = require('fs');
 var c = require('./appConfig.json');
 var Executor = require('./Executor');
 var getPath = require('./util').getPath;
-var select = require('./selector');
+var browseTree = require('./selector').browseTree;
 
 module.exports.synchronize = function(config, callback) {
 	exploreDLL(function() {
@@ -30,43 +30,35 @@ function exploreDLL(callback) {
 function parseTests(callback) {
 	fs.readFile(c.exploredTests, function(err, data) {
 		parseXml(data, function(err, result) {
-			var testFixtures = [];
-			
-			select(result["test-run"], testFixtures, "test-suite", function(obj) {
-				// if object has "test-case" collection
-				return obj["test-case"]; 
-			});
-			
-			var data = {
-				fixtures: testFixtures.map(fixture => {
-					return {
-						name: fixture.$.name,
-						tests: fixture['test-case'].map(test => {
-							return {
-								name: test.$.name,
-								fullname: test.$.fullname
-							}
-						})
-					}
-				})
-			};
-			
-			callback(data)
+			callback(result["test-run"]["test-suite"][0]);
 		});
 	});
 }
 
 function syncFile(config, parsedData, callback) {
 	// if config is new
-	if(config.data === undefined) {
+	if(config.data === undefined)
 		config.data = {};
-	}
-	if(config.data.fixtures === undefined) {
-		config.data.fixtures = [];
-	}
+	else
+		config.data = JSON.parse(config.data);
 	
-	config.data = synchronizeTestInfo(config.data, parsedData);
+	config.data.testTree = synchronizeTestTree(config.data.testTree, parsedData);
 	callback(config);
+}
+
+function synchronizeTestTree(oldTree, newTree) {
+	var testTree = newTree;
+	var i=0;
+	browseTree(testTree, function(test) {
+		browseTree(oldTree, function(oldTest) {
+			i++;
+			if(oldTest.$.fullname === test.$.fullname) {
+				test.$.checked = oldTest.$.checked;
+			}
+		});
+	});
+	console.log("OpCount="+i);
+	return testTree;
 }
 
 function synchronizeTestInfo(testInfo, parsedData) {	

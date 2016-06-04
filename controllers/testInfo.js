@@ -3,12 +3,14 @@ var express = require('express'),
 var fs = require('fs');
 var xml2js = require('xml2js');
 
+
 var db = require('../db');
 var c = require('../appConfig');
 var util = require('../util');
 var Executor = require('../Executor');
 var synchronize = require('../synchronizer').synchronize;
-var select = require('../selector');
+var select = require('../selector').select;
+var browseTree = require('../selector').browseTree;
 
 var testRunning = false;
 var testFailed = false;
@@ -35,11 +37,10 @@ router.get('/:id', function(req, res) {
 		if(obj != null) {
 			synchronize(obj, function(obj) {
 				res.render('pages/configPage', {
+					testTree: obj.data.testTree,
 					testInfoName: obj.name,
-					fixtures: obj.data.fixtures,
 					substituteSettingsEnabled: c.substituteSettingsEnabled,
-					settings: obj.data.settings || {},
-					browsers: c.browsers
+					settings: obj.data.settings || {}
 				});
 			});
 		} else {
@@ -51,7 +52,7 @@ router.get('/:id', function(req, res) {
 router.get('/run/:id', function(req, res) {
 	var configs = db.get().collection('configs');
 	configs.findOne({name: req.params.id}, function(err, obj) {		
-		executeTests(obj.data, res);
+		executeTests(JSON.parse(obj.data), res);
 	});
 });
 
@@ -67,13 +68,12 @@ router.post('/save/:id', function(req, res) {
 	});
 });
 
-
 function updateConfig(configName, data, callback) {
 	var configs = db.get().collection('configs');
 	if(data) {			
 		var newObj = {
 			name: configName,
-			data: data
+			data: JSON.stringify(data)
 		};
 		configs.update(
 			{name: configName},
@@ -82,7 +82,7 @@ function updateConfig(configName, data, callback) {
 			function(err, results) {
 				if(err) 
 					return console.log(err);
-				callback(newObj.data);
+				callback(data);
 			}
 		);
 	} else {
@@ -90,7 +90,7 @@ function updateConfig(configName, data, callback) {
 			if(err)
 				return console.log(err);
 			
-			callback(obj);
+			callback(JSON.parse(obj));
 		});
 	}
 }
@@ -262,14 +262,10 @@ function buildTestListFromArray(array, callback) {
 
 function buildTestListFromDB(obj, callback) {
 	var testList = [];
-	obj.fixtures.forEach(fixture => {
-		fixture.tests.filter(test => {
-			return test.active === true;
-		}).forEach(test => {
-			test.browsers.forEach(browser => {
-				testList.push(test.fullname); //fix browsers!!
-			});
-		});
+	browseTree(obj.testTree, function(test) {
+		if(test.$.checked) {
+			testList.push(test.$.fullname);
+		}
 	});
 	callback(testList.join('\n'));
 }

@@ -3,39 +3,16 @@
     <% include ../partials/head %>
 	<script>
 		var settings = <%- JSON.stringify(settings) %>;
-		var substituteSettingsEnabled = <%- substituteSettingsEnabled %>
-		function getFixture($fixture) {
-			var fixture = {};
-			fixture.name = $fixture.attr("name");
-			fixture.tests = [];
-			$.each($fixture.find("div.test"), function(i,v) {
-				fixture.tests.push(getTest($(v)));
-			});
-			return fixture;
-		}
-		
-		function getTest($test) {
-			var test = {};
-			test.name = $test.attr("name");
-			test.fullname = $test.attr("fullname");
-			test.active = $test.find("input.test").prop("checked");
-			test.browsers = [];
-			$.each($test.find("input.browser:checked"), function(i,v) {
-				test.browsers.push($(v).attr("browser"));
-			});
-			return test;
-		}
+		var substituteSettingsEnabled = <%- substituteSettingsEnabled %>;
+		var testTree = <%- JSON.stringify(testTree) %>;
+		<% var key = "test-suite"; %>
 		
 		function getTestData() {
 			var data = {};
-			if(substituteSettingsEnabled) {
+			if(substituteSettingsEnabled)
 				data.settings = settings;
-			}
-			data.fixtures = [];
-			var $fixtures = $('.fixture');
-			$.each($fixtures, function(i,v) {
-				data.fixtures.push(getFixture($(v)));
-			});
+			
+			data.testTree = testTree;
 			return data;
 		}
 		
@@ -56,7 +33,7 @@
 		}
 		
 		function addToggleElement(buttonClass, contextSectionClass, toggleSectionClass) {
-			$(toggleSectionClass).hide();
+			//$(toggleSectionClass).hide();
 			$(buttonClass).click(function() {
 				$(this).toggleClass("active").closest(contextSectionClass).find(toggleSectionClass).slideToggle("fast");
 			});
@@ -79,6 +56,9 @@
 			
 			// Save tests configuration and run tests
 			$('#run_tests').click(function() {
+				if($("input.test:checked").length === 0)
+					return updateMessage("Choose any test");
+					
 				$.ajax({
 					method: "POST",
 					url: "/testInfo/run/" + testInfoName,
@@ -101,29 +81,59 @@
 				});
 			});
 			
+			$("#save_tests_as").click(function() {
+				var new_config = prompt("Type new config name");
+				if(!new_config || new_config === "")
+					return updateMessage("Config name can't be empty");
+				$.ajax({
+					method: "POST",
+					url: "/testInfo/save/" + new_config,
+					contentType: "application/json",
+					data: JSON.stringify(getTestData())
+				}).done(function(msg) {
+					updateMessage(msg);
+				});
+			});
+			
 			// Un/check all tests in fixture on checkbox click
 			$('.all_tests').change(function() {
 				var $fixture = $(this).closest('.fixture');
 				var checked = this.checked;
-				$.each($fixture.find('input.test'), function(i,v) {
+				$.each($fixture.find('input.test, all_tests'), function(i,v) {
 					$(v).prop('checked', checked);
 					$(v).trigger('change');
 				});
 			});
 			
-			// Dis/activate browsers checkboxes for test on checkbox click
+			function dfs(testTree, callback) {
+				if(testTree["test-case"])
+					for(test of testTree["test-case"])
+							callback(test);
+
+				if(testTree["test-suite"])
+					for(test of testTree["test-suite"])
+						dfs(test, callback);
+			}
+			
+			// Update testTree on checkbox click
 			$('input.test').change(function() {
 				var isTestActive = this.checked;
-				var $test = $(this).closest('div.test');
-				$.each($test.find('input.browser'), function(i,v) {
-					$(v).prop('disabled', !isTestActive);
+				var testId = $(this).closest('div.test').attr('test-id');
+				dfs(testTree, function(test) {
+					if(test.$.id === testId)
+						test.$.checked = isTestActive;
 				});
 				updateTestCount();
 			});
 			
-			// Call function above for all tests for initialization
-			$.each($('input.test'), function(i,v) {
-				$(v).trigger("change");
+			// init checkboxes from testTree
+			$.each($('input.test'), function(i, test) {
+				var testId = $(test).closest('div.test').attr('test-id');
+				dfs(testTree, function(tmptest) {
+					if(tmptest.$.id === testId)
+						test.checked = tmptest.$.checked;
+				});
+				updateTestCount();
 			});
 			
 			// If all tests in fixture are active, then check fixture checkbox
@@ -135,6 +145,12 @@
 				}
 				$(v).prop('checked', all_tests_checked);
 			});
+				
+			// Expanding of tests by fixture			
+			addToggleElement(".toggle", ".fixture", ".toggle_data");
+			// Expanding of settings section
+			addToggleElement(".settings_button", ".settings", ".settings_toggle");
+			$(".settings_toggle").hide();
 			
 			// Highlight fixtures with selected tests
 			$.each($('.fixture'), function(i,v) {
@@ -144,15 +160,11 @@
 				while(!any_test_checked && i<tests.length) {
 					any_test_checked = $(tests[i++]).prop('checked');
 				}
-				if(any_test_checked) {
-					$(this).css('background-color', 'rgba(0,0,255,0.04)');
+				if(!any_test_checked) {
+					//$(this).css('background-color', 'rgba(0,0,255,0.04)');
+					$(this).find('.toggle_data').hide();
 				}
-			});
-			
-			// Expanding of tests by fixture			
-			addToggleElement(".toggle", ".fixture", ".toggle_data");
-			// Expanding of settings section
-			addToggleElement(".settings_button", ".settings", ".settings_toggle");
+			});			
 			
 			$(".add_setting").click(function() {
 				var new_setting_name = $(".new_setting.name").val();
@@ -175,20 +187,6 @@
 				var name = $(this).closest('.setting_item').find('.setting_value').attr("name");
 				delete settings[name];
 				renderSettings();
-			});
-			
-			$("#save_tests_as").click(function() {
-				var new_config = prompt("Type new config name");
-				if(!new_config || new_config === "")
-					return updateMessage("Config name can't be empty");
-				$.ajax({
-					method: "POST",
-					url: "/testInfo/save/" + new_config,
-					contentType: "application/json",
-					data: JSON.stringify(getTestData())
-				}).done(function(msg) {
-					updateMessage(msg);
-				});
 			});
 			
 			var lastMsg;
@@ -217,9 +215,8 @@
         <% include ../partials/header %>
     </header>
 	<div class="middle">
-	
 		<div class="container">
-			<main class="content">
+			<main class="content">			
 			<input type="hidden" name="testInfo" value="<%=testInfoName%>" />
 			<% if(substituteSettingsEnabled) { %>
 			<div class="settings">
@@ -239,39 +236,7 @@
 			</div>
 			<% } %>
 			<br>
-			<div class="browsers">
-			<% browsers.forEach(browser => { %>
-				<span class="browser"><%=browser%></span>
-			<% }); %>
-			</div>
-			<% fixtures.forEach(fixture => { %>
-			<div class="fixture" name="<%=fixture.name%>" >		
-				<h4>
-					<input class="all_tests" type="checkbox" />				
-					<span class="toggle">
-						<%= fixture.name %>
-					</span>
-				</h4>
-
-				<div class="toggle_data">	
-					<ul>		
-					<% fixture.tests.forEach(test => { %>
-						<li>
-							<div class="test" name="<%= test.name %>" fullname="<%=test.fullname%>"> <!-- need to refactor this -->
-								<input class="test" type="checkbox" <%= test.active ? "checked" : "" %> />
-								<%= test.name %>
-								<div class="browsers">
-								<% browsers.forEach(browser => { %>
-									<input class="browser" type="checkbox" browser="<%=browser%>" <%= (test.browsers.indexOf(browser) !== -1) ? "checked" : "" %> />
-								<% }); %>
-								</div>
-							</div>
-						</li>
-					<% }); %>
-					</ul>
-				</div>
-			</div>
-			<% }); %>
+			<% include ../partials/treeView %>
 			</main>
 		</div>
 		
@@ -283,7 +248,7 @@
 				<a id="save_tests" href="#" class="button-0">Save</a>
 			</div>
 			<div class="button">
-				<a id="save_tests_as" href="#" class="button-0">Save ...</a>
+				<a id="save_tests_as" href="#" class="button-0">Save as</a>
 			</div>
 			<span>Selected: <span id='testCount'></span></span>
 			<br><br>
