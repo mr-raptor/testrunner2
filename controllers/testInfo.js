@@ -35,7 +35,7 @@ router.get('/:id', function(req, res) {
 	var configs = db.get().collection('configs');
 	configs.findOne({name: req.params.id}, function(err, obj) {	
 		if(obj != null) {
-			synchronize(obj, function(obj) {
+			synchronize(obj, function(obj) {			
 				res.render('pages/configPage', {
 					testTree: obj.data.testTree,
 					testInfoName: obj.name,
@@ -167,6 +167,9 @@ function isFailedByTimeout(testResult) {
 
 
 function runTests(testList, testListPath, xmlReportName, reportFolder, callback) {
+	if(testList.length === 0)
+		return;
+	
 	createTestListFile(testList, testListPath, function() {
 		runTestList(testListPath, xmlReportName, reportFolder, function(reportPath) {
 			callback(reportPath);
