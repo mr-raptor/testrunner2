@@ -9,8 +9,7 @@ var c = require('../appConfig');
 var util = require('../util');
 var Executor = require('../Executor');
 var synchronize = require('../synchronizer').synchronize;
-var select = require('../selector').select;
-var browseTree = require('../selector').browseTree;
+var selector = require('../public/js/selector');
 
 var testRunning = false;
 var testFailed = false;
@@ -222,7 +221,7 @@ function from(sourceReport, callback) {
 
 function getTestByName(source, testName, callback) {
 	var fixtures = [];
-	select(source["test-run"], fixtures, "test-suite", function(obj) {
+	selector.select(source["test-run"], fixtures, "test-suite", function(obj) {
 		return obj["test-case"];
 	});
 	var results = [];
@@ -236,7 +235,7 @@ function getTestByName(source, testName, callback) {
 	
 function whereAllTestsAreFailed(source, callback) {
 	var fixtures = [];
-	select(source["test-run"], fixtures, "test-suite", function(obj) {
+	selector.select(source["test-run"], fixtures, "test-suite", function(obj) {
 		return obj["test-case"];
 	});
 	var failedTests = [];
@@ -265,7 +264,7 @@ function buildTestListFromArray(array, callback) {
 
 function buildTestListFromDB(obj, callback) {
 	var testList = [];
-	browseTree(obj.testTree, function(test) {
+	selector.browseTree(obj.testTree, function(test) {
 		if(test.$.checked) {
 			testList.push(test.$.fullname);
 		}

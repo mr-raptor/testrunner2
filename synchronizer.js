@@ -4,7 +4,7 @@ var fs = require('fs');
 var c = require('./appConfig.json');
 var Executor = require('./Executor');
 var getPath = require('./util').getPath;
-var browseTree = require('./selector').browseTree;
+var selector = require('./public/js/selector');
 
 module.exports.synchronize = function(config, callback) {
 	exploreDLL(function() {
@@ -48,19 +48,15 @@ function syncFile(config, parsedData, callback) {
 
 function synchronizeTestTree(oldTree, newTree) {
 	var testTree = newTree;
-	var i=0;
-	browseTree(testTree, function(test) {
-		browseTree(oldTree, function(oldTest) {
-			i++;
-			if(oldTest.$.fullname === test.$.fullname) {
-				test.$.checked = oldTest.$.checked;
-			}
+	selector.browseTree(testTree, function(test) {
+		selector.searchTest(oldTree, test.$.fullname, "fullname", function(oldTest) {
+			test.$.checked = oldTest.$.checked;
 		});
 	});
-	console.log("OpCount="+i);
 	return testTree;
 }
 
+// Obsolete
 function synchronizeTestInfo(testInfo, parsedData) {	
 	// Delete all fixtures in testInfo what there isn't in parsedData						
 	testInfo.fixtures = testInfo.fixtures.filter(fixture => searchFixture(fixture.name, parsedData.fixtures));

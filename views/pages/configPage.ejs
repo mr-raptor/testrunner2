@@ -119,17 +119,17 @@
 			$('input.test').change(function() {
 				var isTestActive = this.checked;
 				var testId = $(this).closest('div.test').attr('test-id');
-				dfs(testTree, function(test) {
+				selector.searchTest(testTree, testId, "id", function(test) {
 					if(test.$.id === testId)
 						test.$.checked = isTestActive;
 				});
 				updateTestCount();
 			});
 			
-			// init checkboxes from testTree
+			// Init checkboxes from testTree
 			$.each($('input.test'), function(i, test) {
 				var testId = $(test).closest('div.test').attr('test-id');
-				dfs(testTree, function(tmptest) {
+				selector.searchTest(testTree, testId, "id", function(tmptest) {
 					if(tmptest.$.id === testId)
 						test.checked = tmptest.$.checked;
 				});
