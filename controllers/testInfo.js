@@ -157,7 +157,7 @@ function isFailedTest(testData, testName, reports) {
 			return test.$.fullname === testName;
 		}).concat(testResults);
 	});
-	return !isFailedByTimeout(testResults[2]) && testResults.some(item => item.failure);
+	return !(isFailedByTimeout(testResults[2]) && testResults.some(item => !item.failure)) && testResults.some(item => item.failure);
 }
 
 function isFailedByTimeout(testResult) {
