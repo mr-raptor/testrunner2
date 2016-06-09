@@ -105,16 +105,6 @@
 				});
 			});
 			
-			function dfs(testTree, callback) {
-				if(testTree["test-case"])
-					for(test of testTree["test-case"])
-							callback(test);
-
-				if(testTree["test-suite"])
-					for(test of testTree["test-suite"])
-						dfs(test, callback);
-			}
-			
 			// Update testTree on checkbox click
 			$('input.test').change(function() {
 				var isTestActive = this.checked;
@@ -196,7 +186,7 @@
 					url: "checkStatus",
 				}).done(function(msg) {
 					if(msg !== lastMsg) {
-						if(msg === "Success" || msg === "Failed") {
+						if(msg === "Success" || msg === "Failed" || msg === "Warning") {
 							updateMessage("<a href='/results'>Results</a>");
 						} else {
 							updateMessage(msg);

@@ -12,7 +12,7 @@ var synchronize = require('../synchronizer').synchronize;
 var selector = require('../public/js/selector');
 
 var testRunning = false;
-var testFailed = false;
+var testStatus = "Waiting";
 
 
 router.get('/report', function(req, res) {
@@ -23,10 +23,8 @@ router.get('/report', function(req, res) {
 router.get('/checkStatus', function(req, res) {
 	if(testRunning) {
 		res.end('Running');
-	} else if (testFailed) {
-		res.end('Failed');
 	} else {
-		res.end('Success');
+		res.end(testStatus);
 	}
 });
 
@@ -101,7 +99,7 @@ function executeTests(data, res) {
 	res.end("Started");
 	
 	testRunning = true;
-	testFailed = false;
+	testStatus = "Success";
 	
 	substituteSettings(data, function() {
 		prepareReportFolders(function(reportFolder) {
@@ -113,7 +111,7 @@ function executeTests(data, res) {
 						rerunFailedTests(reportFolder, reportPath);
 					} else {
 						checkFailedTests(reportPath, function() {
-							testFailed = true;
+							testStatus = "Failed";
 						});
 						generateReport(reportFolder);
 					}
@@ -133,12 +131,17 @@ function rerunFailedTests(reportFolder, sourceReport) {
 					var reports = [sourceReport, secondReportPath, thirdReportPath];
 					
 					// check results					
-					getFailedTestsWithTimeouts(tests, reports, function(testData) {
-						tests.forEach(currTest => {
+					getFailedTests(tests, reports, function(testData) {
+						for(currTest of tests) {
 							if(isFailedTest(testData, currTest, reports)) {
-								testFailed = true;
+								if(isLowPriority(testData, reports[0], currTest)) {
+									testStatus = "Warning";
+								} else {
+									testStatus = "Failed";
+									break;
+								}
 							}
-						});
+						}
 					});
 					
 					generateReport(reportFolder);
@@ -153,17 +156,25 @@ function rerunFailedTests(reportFolder, sourceReport) {
 function isFailedTest(testData, testName, reports) {
 	var testResults = [];
 	reports.forEach(report => {
-		testResults = testData[report].filter(test => {
+		testResults.push(testData[report].filter(test => {
 			return test.$.fullname === testName;
-		}).concat(testResults);
+		}));	
 	});
-	return !(isFailedByTimeout(testResults[2]) && testResults.some(item => !item.failure)) && testResults.some(item => item.failure);
+	
+	return !(isFailedByTimeout(testResults[2]) && testResults.some(item => !item.failure)) || testResults.some(item => item.failure);
 }
 
 function isFailedByTimeout(testResult) {
 	return testResult.failure && Boolean(String(testResult.failure[0].message).match(/(OpenQA.Selenium.WebDriverTimeoutException|OpenQA.Selenium.ElementNotVisibleException)/i));
 }
 
+function isLowPriority(testData, report, testName) {
+	return testData[report].find(test => {
+		return test.$.fullname === testName;
+	}).properties[0].property.filter(prop => {
+		return prop.$.name === "Category" && prop.$.value === "LowPriority";
+	}).length !== 0;
+}
 
 function runTests(testList, testListPath, xmlReportName, reportFolder, callback) {
 	if(testList.length === 0)
@@ -190,7 +201,7 @@ function checkFailedTests(sourceReport, existAction, nonExistAction) {
 	});
 }
 
-function getFailedTestsWithTimeouts(failedTestList, reportPaths, callback) {
+function getFailedTests(failedTestList, reportPaths, callback) {
 	var testData = [];
 	var i = 0;
 	reportPaths.forEach(report => {
