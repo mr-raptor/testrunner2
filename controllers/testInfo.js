@@ -169,11 +169,12 @@ function isFailedByTimeout(testResult) {
 }
 
 function isLowPriority(testData, report, testName) {
-	return testData[report].find(test => {
+	var property = testData[report].find(test => {
 		return test.$.fullname === testName;
-	}).properties[0].property.filter(prop => {
+	}).properties[0].property;
+	return property? property.filter(prop => {
 		return prop.$.name === "Category" && prop.$.value === "LowPriority";
-	}).length !== 0;
+	}).length !== 0 : false;
 }
 
 function runTests(testList, testListPath, xmlReportName, reportFolder, callback) {
