@@ -155,17 +155,16 @@ function rerunFailedTests(reportFolder, sourceReport) {
 
 function isFailedTest(testData, testName, reports) {
 	var testResults = [];
-	reports.forEach(report => {
-		testResults.push(testData[report].filter(test => {
+	reports.forEach(report => {	
+		testResults = testData[report].filter(test => {
 			return test.$.fullname === testName;
-		}));	
+		}).concat(testResults);
 	});
-	
-	return !(isFailedByTimeout(testResults[2]) && testResults.some(item => !item.failure)) || testResults.some(item => item.failure);
+	return isFailedByTimeout(testResults[2])? [testResults[0],testResults[1]].some(item => item.failure) : [testResults[0],testResults[1]].every(item => item.failure);
 }
 
 function isFailedByTimeout(testResult) {
-	return testResult.failure && Boolean(String(testResult.failure[0].message).match(/(OpenQA.Selenium.WebDriverTimeoutException|OpenQA.Selenium.ElementNotVisibleException)/i));
+	return testResult.$.result === "Failed" && Boolean(String(testResult.failure[0].message).match(/(OpenQA.Selenium.WebDriverTimeoutException|OpenQA.Selenium.ElementNotVisibleException)/i));
 }
 
 function isLowPriority(testData, report, testName) {
