@@ -160,7 +160,7 @@ function isFailedTest(testData, testName, reports) {
 			return test.$.fullname === testName;
 		}).concat(testResults);
 	});
-	return isFailedByTimeout(testResults[2])? [testResults[0],testResults[1]].some(item => item.failure) : [testResults[0],testResults[1]].every(item => item.failure);
+	return isFailedByTimeout(testResults[2])? [testResults[0],testResults[1]].every(item => item.failure) : [testResults[0],testResults[1]].some(item => item.failure);
 }
 
 function isFailedByTimeout(testResult) {
