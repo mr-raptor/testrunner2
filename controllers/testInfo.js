@@ -49,13 +49,13 @@ router.get('/:id', function(req, res) {
 router.get('/run/:id', function(req, res) {
 	var configs = db.get().collection('configs');
 	configs.findOne({name: req.params.id}, function(err, obj) {		
-		executeTests(JSON.parse(obj.data), res);
+		executeTests(JSON.parse(obj.data), req.params.id, res);
 	});
 });
 
 router.post('/run/:id', function(req, res) {
 	updateConfig(req.params.id, req.body, function(data) {
-		executeTests(data, res);
+		executeTests(data, req.params.id, res);
 	});
 });
 
@@ -92,7 +92,7 @@ function updateConfig(configName, data, callback) {
 	}
 }
 
-function executeTests(data, res) {
+function executeTests(data, configName, res) {
 	if(testRunning)
 		return res.end("Tests already are running");
 	
@@ -102,7 +102,7 @@ function executeTests(data, res) {
 	testStatus = "Success";
 	
 	substituteSettings(data, function() {
-		prepareReportFolders(function(reportFolder) {
+		prepareReportFolders(configName, function(reportFolder) {
 			buildTestListFromDB(data, function(testList) {
 				// run selected tests
 				runTests(testList, c.testList, "FirstPhase", reportFolder, function(reportPath) {
@@ -372,9 +372,9 @@ function substituteSettings(data, callback) {
 	}
 }
 
-function prepareReportFolders(callback) {
+function prepareReportFolders(configName, callback) {
 	var now = new Date();
-	var newFolderName = "Result-"+(now.toDateString()+" "+now.toTimeString().substr(0,8)).replace(/[\s:]/g, "-");
+	var newFolderName = "Result-"+(now.toDateString()+" "+now.toTimeString().substr(0,8)).replace(/[\s:]/g, "-")+"-"+configName;
 	var newFolderPath = c.reportFolder+"/"+newFolderName;
 	createDirectory(newFolderPath);
 	createDirectory(newFolderPath+"/xml");
