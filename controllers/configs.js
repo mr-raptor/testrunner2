@@ -8,9 +8,8 @@ router.get('/', function(req, res) {
 	var configs = db.get().collection('configs');
 	
 	configs.find().toArray(function(err, docs) {
-		var configNames = docs.map(doc => doc.name);
 		res.render('pages/configSelector', {
-			configs: configNames
+			configs: docs.map(doc => doc.name).sort()
 		});
 	});
 });
@@ -18,21 +17,27 @@ router.get('/', function(req, res) {
 // Add new
 router.post('/config', function(req, res) {
 	var newConfig = req.body.configName || "";
-	if(newConfig !== "") {
-		var configs = db.get().collection('configs');
-		configs.count({name: newConfig}, function(err, count) {
-			if(err) {
-				console.log(err);
-				return;
-			}
-			if(count === 0) {
-				configs.insert({
-					name: newConfig
-				});
-			}
+	if(newConfig === "")
+		return res.status(500).end('Please, enter config name!');
+	
+	if(!/^[a-z0-9-_]+$/ig.test(newConfig))
+		return res.status(500).end('Please, use only alphanumeric, "-" and "_" symbols');
+	
+	var configs = db.get().collection('configs');
+	configs.count({name: newConfig}, function(err, count) {
+		if(err)
+			return console.log(err);
+		
+		if(count !== 0)
+			return res.status(500).end('Config with this name already exists!');
+
+		configs.insert({
+			name: newConfig
 		});
-	}
-	res.redirect('/');
+		configs.find().toArray(function(err, docs) {
+			return res.json(docs.map(config => config.name).sort());
+		});
+	});
 });
 
 router.get('/deleteConfig/:id', function(req, res) {
