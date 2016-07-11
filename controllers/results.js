@@ -7,7 +7,11 @@ var db = require('../db'),
 	
 
 router.get('/page/:id/:page', function(req, res) {
-	res.render('testResults/'+req.params.id+'/html/'+req.params.page);
+	res.render('testResults/'+req.params.id+'/html/'+req.params.page, {}, function(err,html) {
+		if(err)
+			return res.render('pages/404');
+		return res.send(html);
+	});
 });
 
 router.get('/page/:id', function(req, res) {
