@@ -20,8 +20,8 @@ router.post('/config', function(req, res) {
 	if(newConfig === "")
 		return res.status(500).end('Please, enter config name!');
 	
-	if(!/^[a-z0-9-_]+$/ig.test(newConfig))
-		return res.status(500).end('Please, use only alphanumeric, "-" and "_" symbols');
+	if(!/^[a-z0-9-_.]+$/ig.test(newConfig))
+		return res.status(500).end('Please, use only alphanumeric, ".", "-", and "_" symbols');
 	
 	var configs = db.get().collection('configs');
 	configs.count({name: newConfig}, function(err, count) {
