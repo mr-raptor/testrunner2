@@ -1,0 +1,9 @@
+<div *ngIf="nodes">
+	<h3>Nodes:</h3>
+	<ul *ngFor="let node of nodes">
+		<li>
+			<grid-node [node]="node"></grid-node>
+		</li>
+	</ul>
+</div>
+<button (click)="restartAll()" >Restart All Nodes</button>

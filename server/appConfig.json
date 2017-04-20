@@ -1,9 +1,8 @@
 {
 	"PORT": 3000,
-	"nunitApp": "D:\\Program Files (x86)\\NUnit.org\\nunit3-console.exe",
-	"testAssemblyPath": "C:\\cygwin64\\home\\Admin\\adorama-autotestapplication\\AutoTestApp.Adorama\\bin\\Debug\\AutoTestApp.Adorama.dll",
+	"nunitApp": "C:\\Program Files (x86)\\NUnit.org\\nunit-console\\nunit3-console.exe",
 	"reportFolder": "views/testResults",
-	"reportFilesFolder": "D:\\TestResults\\",
+	"reportFilesFolder": "C:\\git\\adorama-autotestapplication\\TestResults\\",
 	"HTMLReportApp": "ReportGenerator/ReportUnit.exe",
 	"exploredTests": "explored.xml",
 	"dbConnection": "mongodb://localhost:27017/testrunner",
@@ -11,6 +10,17 @@
 	"testListError": "testListError.txt",
 	"rerunFailedTests": true,
 	"nodesCount": 20,
-	"hostSyncScript": "./sync_hosts.sh",
-	"hostTemplate": "hosts.txt"
+	"hostSyncScript": "./scripts/sync_hosts.sh",
+	"wsStatusScript": "./scripts/ws_status.ps1",
+	"wsStartScript": "./scripts/ws_run.ps1",
+	"wsStopScript": "./scripts/ws_stop.ps1",
+	"hostTemplate": "hosts.txt",
+	"testAssemblies": [
+		"C:\\git\\adorama-autotestapplication\\AutoTestApp.Adorama\\bin\\Debug\\AutoTestApp.Adorama.dll",
+		"C:\\git\\adorama-autotestapplication\\AutoTestApp.UnifiedTests\\bin\\Debug\\AutoTestApp.UnifiedTests.dll"
+	],
+	"gridNodes": [
+		"PhoneSvc",
+		"adr-sel02"
+	]
 }

@@ -1,0 +1,7 @@
+<div>
+	{{node.name}}
+	{{node.status}}
+	<button *ngIf="node.status === 'Stopped'" (click)="start()">Start</button>
+	<button *ngIf="node.status === 'Running'" (click)="stop()">Stop</button>
+	<button (click)="restart()">Restart</button>
+</div>

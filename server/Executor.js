@@ -34,4 +34,10 @@ function Executor(options) {
 	self.execute();
 }
 
+function PSExecutor(options) {
+	options.program = "powershell.exe"
+	new Executor(options);
+}
+
 module.exports = Executor;
+module.exports.PSExecutor = PSExecutor;

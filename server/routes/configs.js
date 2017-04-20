@@ -2,7 +2,6 @@ var express = require('express'),
 	router = express.Router();
 
 var db = require('../db');
-var sync = require('../synchronizer');
 var runner = require('../runner');
 
 router.get('/configs', function(req, res) {
@@ -10,7 +9,10 @@ router.get('/configs', function(req, res) {
 	
 	configs.find().toArray(function(err, docs) {
 		res.json(docs.map(config => { 
-			return { name: config.name }
+			return { 
+				name: config.name,
+				updated: config.updated
+			}
 		}).sort());
 	});
 });
@@ -24,7 +26,7 @@ router.get('/config/run/:name', function(req, res) {
 });
 
 router.post('/config/run/:name', function(req, res) {
-	updateConfig(req.params.name, req.body.data, function(data) {
+	updateConfig(req.params.name, req.body, function(data) {
 		runner.executeTests(data, req.params.name, res);
 	});
 });
@@ -32,11 +34,9 @@ router.post('/config/run/:name', function(req, res) {
 router.get('/config/:name', function(req, res) {
 	var configs = db.get().collection('configs');
 	configs.findOne({name: req.params.name}, function(err, obj) {
-		if(obj !== null) {
-			sync.synchronize(obj, function(obj) {
-				//obj.data = JSON.parse(obj.data);
-				res.json(obj);
-			});
+		if(obj) {
+			obj.data = JSON.parse(obj.data);
+			res.json(obj);
 		} else {
 			return res.status(500).end('Config not found!');
 		}
@@ -44,7 +44,7 @@ router.get('/config/:name', function(req, res) {
 });
 
 router.post('/config/:name', function(req, res) {
-	updateConfig(req.params.name, req.body.data, function() {
+	updateConfig(req.params.name, req.body, function() {
 		res.end('Saved');
 	});
 });
@@ -66,7 +66,8 @@ router.post('/config', function(req, res) {
 			return res.status(500).end('Config with this name already exists!');
 
 		configs.insert({
-			name: configName
+			name: configName,
+			updated: new Date()
 		});
 		configs.find().toArray(function(err, docs) {
 			res.json(docs.map(config => { 
@@ -88,12 +89,14 @@ router.delete('/config/:name', function(req, res) {
 	});
 });
 
-function updateConfig(configName, data, callback) {
+function updateConfig(configName, body, callback) {
 	var configs = db.get().collection('configs');
-	if(data) {			
+	if(body.data) {			
 		var newObj = {
 			name: configName,
-			data: JSON.stringify(data)
+			data: JSON.stringify(body.data),
+			updated: new Date(),
+			hash: body.hash
 		};
 		configs.update(
 			{name: configName},
@@ -102,7 +105,7 @@ function updateConfig(configName, data, callback) {
 			function(err, results) {
 				if(err) 
 					return console.log(err);
-				callback(data);
+				callback(body.data);
 			}
 		);
 	} else {

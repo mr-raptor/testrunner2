@@ -6,19 +6,33 @@ var Executor = require('./Executor');
 var getPath = require('./util').getPath;
 var selector = require('./selector');
 
-module.exports.synchronize = function(config, callback) {
-	//exploreDLL(function() {
+//obsolete
+/*module.exports.synchronize = function(config, callback) {
+	exploreDLL(function() {
 		parseTests(function(data) {
 			syncFile(config, data, callback);
 		});
-	//});
+	});
+}*/
+
+
+module.exports.synchronize = function(config, data, callback) {
+	syncFile(config, data, callback);
+}
+
+module.exports.getExploredData = function(callback) {
+	exploreDLL(() => {
+		parseTests(data => {
+			callback(data);
+		});
+	});
 }
 
 function exploreDLL(callback) {
 	new Executor({
 		program: getPath(c.nunitApp),
 		args: {
-			input: getPath(c.testAssemblyPath),
+			input: getPath(c.testAssemblies.join("\" \"")),
 			output: "-explore="+c.exploredTests
 		},
 		successAction: function() {
@@ -30,7 +44,7 @@ function exploreDLL(callback) {
 function parseTests(callback) {
 	fs.readFile(c.exploredTests, function(err, data) {
 		parseXml(data, function(err, result) {
-			callback(result["test-run"]["test-suite"][0]);
+			callback(result["test-run"]);
 		});
 	});
 }
@@ -45,6 +59,8 @@ function syncFile(config, parsedData, callback) {
 	parsedData = remapFixtures(parsedData);
 
 	config.data.testTree = synchronizeTestTree(config.data.testTree, parsedData);
+	config.data.testTree.$.name = "Root";
+	
 	callback(config);
 }
 

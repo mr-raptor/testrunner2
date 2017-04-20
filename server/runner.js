@@ -124,7 +124,7 @@ function runTestList(testList, name, reportFolder, callback) {
 		args: {
 			tests: "--testlist=" + testList,
 			workers: "--workers=" + c.nodesCount,
-			assembly: util.getPath(c.testAssemblyPath),
+			assembly: util.getPath(c.testAssemblies.join("\" \"")),
 			output: "--result="+reportPath
 		},
 		anywayAction: function() {
@@ -135,7 +135,7 @@ function runTestList(testList, name, reportFolder, callback) {
 
 function isFailedTest(testData, testName, reports) {
 	var testResults = [];
-	reports.forEach(report => {	
+	reports.forEach(report => {
 		testResults = testData[report].filter(test => {
 			return test.$.fullname === testName;
 		}).concat(testResults);
