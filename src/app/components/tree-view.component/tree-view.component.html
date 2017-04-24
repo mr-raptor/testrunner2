@@ -22,7 +22,7 @@
 
 	<!--ul [@visibilityChanged]="visibility"-->
 	<ul [class.hide]="!isVisible">
-		<ng-template [ngIf]="tree['test-suite'] && tree['test-suite'][0]['$']['type'] !== 'TestCase'">
+		<ng-template [ngIf]="tree['test-suite'] && (tree['test-suite'][0] && tree['test-suite'][0]['$']['type'] !== 'TestCase')">
 			<li *ngFor="let subtree of tree['test-suite']">
 				<tree-view [tree]="subtree" [browsers]="browsers"></tree-view>
 			</li>
