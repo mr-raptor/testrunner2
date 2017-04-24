@@ -15,10 +15,10 @@
 	"wsStartScript": "./scripts/ws_run.ps1",
 	"wsStopScript": "./scripts/ws_stop.ps1",
 	"hostTemplate": "hosts.txt",
-	"testAssemblies": [
-		"C:\\git\\adorama-autotestapplication\\AutoTestApp.Adorama\\bin\\Debug\\AutoTestApp.Adorama.dll",
-		"C:\\git\\adorama-autotestapplication\\AutoTestApp.UnifiedTests\\bin\\Debug\\AutoTestApp.UnifiedTests.dll"
-	],
+	"testAssemblies": {
+		"leisurepro": "C:\\git\\adorama-autotestapplication\\AutoTestApp.LeisurePro\\bin\\Debug\\AutoTestApp.LeisurePro.dll",
+		"unified": "C:\\git\\adorama-autotestapplication\\AutoTestApp.UnifiedTests\\bin\\Debug\\AutoTestApp.UnifiedTests.dll"
+	},
 	"gridNodes": [
 		"PhoneSvc",
 		"adr-sel02"

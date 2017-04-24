@@ -124,7 +124,9 @@ function runTestList(testList, name, reportFolder, callback) {
 		args: {
 			tests: "--testlist=" + testList,
 			workers: "--workers=" + c.nodesCount,
-			assembly: util.getPath(c.testAssemblies.join("\" \"")),
+			assembly: util.getPath(Object.keys(c.testAssemblies).map(key => {
+				return c.testAssemblies[key];
+			}).join("\" \"")),
 			output: "--result="+reportPath
 		},
 		anywayAction: function() {

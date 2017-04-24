@@ -25,6 +25,7 @@ import { TreeService } from './services/tree.service/tree.service';
 import { StatusService } from './services/status.service/status.service';
 import { GridService } from './services/grid.service';
 import { GridNodeComponent } from './components/grid-node/grid-node.component';
+import { ConfigSettingComponent } from './components/config-setting/config-setting.component';
 
 
 @NgModule({
@@ -48,7 +49,8 @@ import { GridNodeComponent } from './components/grid-node/grid-node.component';
 		StatusComponent,
 		HostTemplateComponent,
 		GridComponent,
-		GridNodeComponent
+		GridNodeComponent,
+		ConfigSettingComponent
 	],
 	providers: [ 
 		ConfigService,

@@ -7,16 +7,15 @@ var db = require('../server/db');
 var sync = require('../server/synchronizer');
 var timeText = require('../server/util').timeText;
 
-new CronJob('*/10 * * * * *', function() {
-	console.log("Run process");
-	checkUpdates();
-	
-}, null, true, 'America/Los_Angeles');
+new CronJob('*/10 * * * * *', checkUpdates, null, true, 'America/Los_Angeles');
 
 console.log(process.env.PORT);
 
 function checkUpdates() {
-	var dllPath = c.testAssemblies[0];
+	console.log("Run process");
+	var dllPath = Object.keys(c.testAssemblies).map(key => {
+				return c.testAssemblies[key];
+			})[0];
 	fs.access(dllPath, fs.constants.R_OK, (err) => {
 		if (!err) {
 			getFileHash(dllPath, (fileHash) => {
@@ -53,21 +52,72 @@ function getFileHash(filepath, callback) {
 	
 }
 
+function fixLegacySettings() {
+	let configs = db.get().collection('configs');
+
+	const keys = Object.keys(c.testAssemblies);
+	const key = keys[0];
+	console.log(key);
+
+	function isInKeysArray(item) {
+		return keys.indexOf(item) !== -1;
+	}
+
+	configs.find().toArray(function(err, docs) {
+		docs.map(config => {
+			let data = JSON.parse(config.data);
+			let settings = data.settings;
+			console.dir(settings);
+			if(!settings)
+				return;
+
+			if(Array.isArray(settings)) {
+				if(!settings.every(isInKeysArray)) {
+					let temp = settings;
+					settings = {};
+					settings[key] = temp;
+				}
+			} else {
+				// for lp
+				let temp = settings;
+				settings = {};
+				settings[key] = Object.keys(temp).map(item => { 
+					return {
+						name: item,
+						value: temp[item]
+					}
+				});
+			}
+			console.dir(settings);
+			data.settings = settings;
+			config.data = JSON.stringify(data);
+			saveConfig(config, (status) => {
+				if(status.result.ok && status.result.ok === 1) {
+					console.log(`${config.name} updated`);
+				} else {
+					console.log(`Error on ${config.name} update`);
+					console.dir(status);
+				}
+			});
+		});
+	});
+}
+
+
+
 function updateConfigs(fileHash) {
 	var configs = db.get().collection('configs');
 	configs.find({$or : [{hash:undefined}, {hash:{$ne: fileHash }}]}).toArray(function(err, docs) {
-		if(!docs)
+		if(!docs || docs.length === 0)
 			return console.log("Configs not found!");
 		
 		console.log("Configs to update count = "+docs.length);
 		
-		if(docs.length > 0) {
-			sync.getExploredData(data => {
-				docs.forEach(doc => {
-					syncConfig(doc, data, fileHash);
-				});
+		sync.getExploredData(data => {
+			docs.forEach(doc => {
+				syncConfig(doc, data, fileHash);
 			});
-		}
+		});
 	});
 }
 
@@ -114,5 +164,7 @@ db.connect(c.dbConnection, function(err) {
 		process.exit(1);
 	} else {
 		console.log('Cron Start!');
+		fixLegacySettings();
 	}
 });
+

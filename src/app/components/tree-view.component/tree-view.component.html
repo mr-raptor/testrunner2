@@ -15,7 +15,7 @@
 		<td *ngFor="let browser of browsers" class="browser">
 			<img src="/images/browsers/{{browser.name}}.png"
 				[class.unchecked]="!browser.checked"
-				(click)="toggleBrowser(browser)" />
+				(click)="toggleBrowser(browser) " />
 		</td>
 	</tr>
 	</table>

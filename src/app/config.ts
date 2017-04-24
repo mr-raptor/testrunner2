@@ -4,5 +4,7 @@ export class Config {
 		testTree: any,
 		settings: any,
 		hostfile: any
-	}
+	};
+	updated: Date;
+	hash: string;
 }

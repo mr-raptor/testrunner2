@@ -1,6 +1,6 @@
 var express = require('express'),
 	router = express.Router();
-
+var c = require('../appConfig');
 var db = require('../db');
 var runner = require('../runner');
 
@@ -36,6 +36,15 @@ router.get('/config/:name', function(req, res) {
 	configs.findOne({name: req.params.name}, function(err, obj) {
 		if(obj) {
 			obj.data = JSON.parse(obj.data);
+			if(!obj.data.settings)
+				obj.data.settings = {};
+			const arr = Object.keys(c.testAssemblies);
+			arr.forEach(key => {
+				if(Object.keys(obj.data.settings).indexOf(key) === -1) {
+					obj.data.settings[key] = [];
+				}
+			})
+
 			res.json(obj);
 		} else {
 			return res.status(500).end('Config not found!');

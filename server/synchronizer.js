@@ -32,7 +32,9 @@ function exploreDLL(callback) {
 	new Executor({
 		program: getPath(c.nunitApp),
 		args: {
-			input: getPath(c.testAssemblies.join("\" \"")),
+			input: getPath(Object.keys(c.testAssemblies).map(key => {
+				return c.testAssemblies[key];
+			}).join("\" \"")),
 			output: "-explore="+c.exploredTests
 		},
 		successAction: function() {
@@ -44,27 +46,12 @@ function exploreDLL(callback) {
 function parseTests(callback) {
 	fs.readFile(c.exploredTests, function(err, data) {
 		parseXml(data, function(err, result) {
-			callback(result["test-run"]);
+			remapFixtures(result["test-run"], callback);
 		});
 	});
 }
 
-function syncFile(config, parsedData, callback) {
-	// if config is new
-	if(!config.data)
-		config.data = {};
-	else
-		config.data = JSON.parse(config.data);
-
-	parsedData = remapFixtures(parsedData);
-
-	config.data.testTree = synchronizeTestTree(config.data.testTree, parsedData);
-	config.data.testTree.$.name = "Root";
-	
-	callback(config);
-}
-
-function remapFixtures(data) {
+function remapFixtures(data, callback) {
 	selector.browseTree(data, {
 		"ParameterizedFixture": function(pFixture) {
 			var fixtures = pFixture['test-suite'];
@@ -103,7 +90,20 @@ function remapFixtures(data) {
 			});
 		}
 	});
-	return data;
+	callback(data);
+}
+
+function syncFile(config, parsedData, callback) {
+	// if config is new
+	if(!config.data)
+		config.data = {};
+	else
+		config.data = JSON.parse(config.data);
+
+	config.data.testTree = synchronizeTestTree(config.data.testTree, parsedData);
+	config.data.testTree.$.name = "Root";
+
+	callback(config);
 }
 
 function synchronizeTestTree(oldTree, newTree) {
