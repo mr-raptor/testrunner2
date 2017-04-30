@@ -142,11 +142,15 @@ function isFailedTest(testData, testName, reports) {
 			return test.$.fullname === testName;
 		}).concat(testResults);
 	});
-	return isFailedByTimeout(testResults[2])? [testResults[0],testResults[1]].every(item => item.failure) : [testResults[0],testResults[1]].some(item => item.failure);
+	return isFailedByTimeout(testResults[2])? 
+		[testResults[0],testResults[1]].every(item => item.failure) : 
+		[testResults[0],testResults[1]].some(item => item.failure);
 }
 
 function isFailedByTimeout(testResult) {
-	return testResult.$.result === "Failed" && Boolean(String(testResult.failure[0].message).match(/(OpenQA.Selenium.WebDriverTimeoutException|OpenQA.Selenium.ElementNotVisibleException)/i));
+	return testResult.$.result === "Failed" && 
+			Boolean(String(testResult.failure[0].message)
+				.match(/(OpenQA.Selenium.WebDriverTimeoutException|OpenQA.Selenium.ElementNotVisibleException)/i));
 }
 
 function isLowPriority(testData, report, testName) {

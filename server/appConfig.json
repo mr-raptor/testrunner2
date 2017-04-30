@@ -22,5 +22,6 @@
 	"gridNodes": [
 		"PhoneSvc",
 		"adr-sel02"
-	]
+	],
+	"dbBackupCapacity": 10
 }

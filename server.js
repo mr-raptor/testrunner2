@@ -1,12 +1,15 @@
-var express	= require('express');
-var path = require('path');
-var bodyParser = require('body-parser');
+const express	= require('express');
+const path = require('path');
+const bodyParser = require('body-parser');
+const compression = require('compression')
 
-var c = require('./server/appConfig.json');
-var db = require('./server/db');
-var timeText = require('./server/util').timeText;
+const c = require('./server/appConfig.json');
+const db = require('./server/db');
+const timeText = require('./server/util').timeText;
 
 var app = express();
+
+app.use(compression());
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.json({limit: '50mb'}));

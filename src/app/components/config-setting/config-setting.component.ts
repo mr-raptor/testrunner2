@@ -37,7 +37,12 @@ export class ConfigSettingComponent {
 	newSetting = new Setting();
 
 	addNew(): void {
-		this.settings.push(this.newSetting);
+		let trimmedSetting = new Setting();
+		trimmedSetting = {
+			name: this.newSetting.name.trim(),
+			value: this.newSetting.value.trim()
+		};
+		this.settings.push(trimmedSetting);
 		this.newSetting = new Setting();
 	}
 
@@ -54,18 +59,3 @@ export class Setting {
 	name: string;
 	value: string;
 }
-
-/*<ul *ngIf="settings">
-	<li *ngFor="let setting of settings">
-		<span>
-			{{setting.name}}
-			<input type="text" [(ngModel)]="setting.value" />
-			<button (click)="deleteSetting(setting)">Delete</button>
-		</span>
-	</li>
-</ul>
-<span>
-	<input type="text" [(ngModel)]="newSetting.name" />
-	<input type="text" [(ngModel)]="newSetting.value" />
-	<button (click)="addNew()">Add New</button>
-</span>*/

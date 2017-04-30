@@ -69,19 +69,6 @@ function replaceTextInFile(filePath, fromPattern, toPattern) {
 	});
 }
 
-/*function cleanFolder(path) {
-	new Executor({
-		program: "del",
-		args: {
-			path: path,
-			mode: "/Q"
-		},
-		errorAction: function(err) {
-			console.log(err);
-		}
-	});
-}*/
-
 function createDirectory(name) {
 	if (!fs.existsSync(name)){
 		fs.mkdirSync(name);

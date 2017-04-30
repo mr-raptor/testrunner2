@@ -1,26 +1,16 @@
-var parseXml = require('xml2js').parseString;
-var fs = require('fs');
+const parseXml = require('xml2js').parseString;
+const fs = require('fs');
 
-var c = require('./appConfig.json');
-var Executor = require('./Executor');
-var getPath = require('./util').getPath;
-var selector = require('./selector');
+const c = require('./appConfig.json');
+const Executor = require('./Executor');
+const getPath = require('./util').getPath;
+const selector = require('./selector');
 
-//obsolete
-/*module.exports.synchronize = function(config, callback) {
-	exploreDLL(function() {
-		parseTests(function(data) {
-			syncFile(config, data, callback);
-		});
-	});
-}*/
-
-
-module.exports.synchronize = function(config, data, callback) {
+function synchronize(config, data, callback) {
 	syncFile(config, data, callback);
 }
 
-module.exports.getExploredData = function(callback) {
+function getExploredData(callback) {
 	exploreDLL(() => {
 		parseTests(data => {
 			callback(data);
@@ -77,6 +67,11 @@ function remapFixtures(data, callback) {
 				var list = [];
 				selector.searchTests(pFixture, "name", testCase.name, function(test) {
 					test.$.browser = getBrowserName(test);
+
+					// remove properties to reduce config size
+					if(test.properties)
+						delete test.properties;
+
 					list.push(test); 
 				});
 				return {
@@ -134,3 +129,6 @@ function getBrowserName(test) {
 	var output = test.$['fullname'].match(pattern);
 	return output ? output[output.length-1] : "error";
 }
+
+module.exports.synchronize = synchronize;
+module.exports.getExploredData = getExploredData;

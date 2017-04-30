@@ -18,33 +18,6 @@
 		}
 	}
 
-
-	// for each test in testTree do callback
-	/*function browseTree(testTree, callback) {
-		if(!testTree)
-			return;
-		
-		if(testTree["test-case"])
-			for(test of testTree["test-case"])				
-				callback(test);
-
-		if(testTree["test-suite"])
-			for(test of testTree["test-suite"])
-				browseTree(test, callback);
-	}
-
-	function browseParamFixtures(testTree, callback) {
-		if(!testTree)
-			return;
-		
-		if(testTree.$["type"] === "ParameterizedFixture")				
-			callback(testTree);
-
-		if(testTree["test-suite"])
-			for(testsuite of testTree["test-suite"])
-				browseParamFixtures(testsuite, callback);
-	}*/
-
 	function browseTree(testTree, actions) {
 		if(!actions || actions.length === 0)
 			return;
